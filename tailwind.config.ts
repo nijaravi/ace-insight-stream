@@ -39,6 +39,10 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          foreground: "hsl(var(--gold-foreground))",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -46,6 +50,14 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        banking: {
+          sidebar: "hsl(var(--banking-sidebar))",
+          "sidebar-foreground": "hsl(var(--banking-sidebar-foreground))",
+          "sidebar-accent": "hsl(var(--banking-sidebar-accent))",
+          panel: "hsl(var(--banking-panel))",
+          border: "hsl(var(--banking-border))",
+          hover: "hsl(var(--banking-hover))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -80,10 +92,49 @@ export default {
             height: "0",
           },
         },
+        "glow": {
+          "0%": {
+            boxShadow: "0 0 5px hsl(var(--accent))",
+          },
+          "100%": {
+            boxShadow: "0 0 20px hsl(var(--accent)), 0 0 30px hsl(var(--accent))",
+          },
+        },
+        "slide-in": {
+          "0%": {
+            opacity: "0",
+            transform: "translateX(-20px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateX(0)",
+          },
+        },
+        "fade-in": {
+          "0%": {
+            opacity: "0",
+          },
+          "100%": {
+            opacity: "1",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "glow": "glow 2s ease-in-out infinite alternate",
+        "slide-in": "slide-in 0.3s ease-out",
+        "fade-in": "fade-in 0.4s ease-out",
+      },
+      backgroundImage: {
+        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-accent': 'var(--gradient-accent)',
+        'gradient-subtle': 'var(--gradient-subtle)',
+      },
+      boxShadow: {
+        'banking': 'var(--shadow-banking)',
+        'glow': 'var(--shadow-glow)',
+        'card': 'var(--shadow-card)',
       },
     },
   },
