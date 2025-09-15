@@ -4,8 +4,10 @@ import { CheckSendAlertsPanel } from "./CheckSendAlertsPanel";
 import { NewEmailSettingsPanel } from "./NewEmailSettingsPanel";
 import { NewSentAlertsHistoryPanel } from "./NewSentAlertsHistoryPanel";
 
+import { KpiData } from "@/pages/Index";
+
 interface MainContentProps {
-  selectedKpi: string;
+  selectedKpi: KpiData | null;
   activeTab?: string;
   onTabChange?: (tabId: string) => void;
 }

@@ -19,8 +19,10 @@ interface HistoryAlert {
   alertMessage: string;
 }
 
+import { KpiData } from "@/pages/Index";
+
 interface NewSentAlertsHistoryPanelProps {
-  selectedKpi: string;
+  selectedKpi: KpiData | null;
 }
 
 export function NewSentAlertsHistoryPanel({ selectedKpi }: NewSentAlertsHistoryPanelProps) {

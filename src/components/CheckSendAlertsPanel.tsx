@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, RefreshCw, Send, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,12 +19,14 @@ interface Alert {
   alertDetails: string;
 }
 
+import { KpiData } from "@/pages/Index";
+
 interface CheckSendAlertsPanelProps {
-  selectedKpi: string;
+  selectedKpi: KpiData | null;
 }
 
 export function CheckSendAlertsPanel({ selectedKpi }: CheckSendAlertsPanelProps) {
-  const [tableName, setTableName] = useState("ace_alerts.branch_wait_time_alerts");
+  const [tableName, setTableName] = useState(selectedKpi?.alertTableName || "ace_alerts.branch_wait_time_alerts");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [selectedAlerts, setSelectedAlerts] = useState<Set<string>>(new Set());
@@ -73,17 +75,15 @@ export function CheckSendAlertsPanel({ selectedKpi }: CheckSendAlertsPanelProps)
     setComments(prev => ({ ...prev, [alertId]: comment }));
   };
 
-  const getKpiName = (kpiId: string) => {
-    const names = {
-      "wait-time": "Branch Wait Time",
-      "card-sales": "Card Sales Drop", 
-      "deposit-balance": "Deposit Balances",
-      "customer-satisfaction": "Customer Satisfaction",
-      "transaction-volume": "Transaction Volume",
-      "atm-downtime": "ATM Downtime",
-      "loan-applications": "Loan Applications"
-    };
-    return names[kpiId as keyof typeof names] || "Unknown KPI";
+  // Update table name when selectedKpi changes
+  useEffect(() => {
+    if (selectedKpi?.alertTableName) {
+      setTableName(selectedKpi.alertTableName);
+    }
+  }, [selectedKpi]);
+
+  const getKpiName = (kpi: KpiData | null) => {
+    return kpi?.name || "Unknown KPI";
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,29 +14,31 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { KpiData } from "@/pages/Index";
+
 interface NewEmailSettingsPanelProps {
-  selectedKpi: string;
+  selectedKpi: KpiData | null;
 }
 
 export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProps) {
-  const [toRecipients, setToRecipients] = useState<string[]>([
-    "branch.manager@adib.ae",
-    "operations@adib.ae"
-  ]);
-  const [ccRecipients, setCcRecipients] = useState<string[]>([
-    "analytics@adib.ae"
-  ]);
+  const [toRecipients, setToRecipients] = useState<string[]>(selectedKpi?.defaultEmailTo || []);
+  const [ccRecipients, setCcRecipients] = useState<string[]>(selectedKpi?.defaultEmailCC || []);
   const [toInput, setToInput] = useState("");
   const [ccInput, setCcInput] = useState("");
-  const [subject, setSubject] = useState("Alert: Branch Wait Time Exceeded - Immediate Action Required");
-  const [emailBody, setEmailBody] = useState(`Dear Team,
+  const [subject, setSubject] = useState(selectedKpi?.defaultSubject || "");
+  const [emailBody, setEmailBody] = useState(selectedKpi?.defaultBody || "");
+  const [footerMessage, setFooterMessage] = useState(selectedKpi?.defaultFooter || "");
 
-We have identified critical alerts that require immediate attention.
-
-Please review the alert details below and take necessary action within 2 hours.
-
-Best regards,`);
-  const [footerMessage, setFooterMessage] = useState("ADIB Analytics Team");
+  // Update form fields when selectedKpi changes
+  useEffect(() => {
+    if (selectedKpi) {
+      setToRecipients(selectedKpi.defaultEmailTo || []);
+      setCcRecipients(selectedKpi.defaultEmailCC || []);
+      setSubject(selectedKpi.defaultSubject || "");
+      setEmailBody(selectedKpi.defaultBody || "");
+      setFooterMessage(selectedKpi.defaultFooter || "");
+    }
+  }, [selectedKpi]);
 
   // Mock selected alerts for preview
   const selectedAlerts = [

@@ -3,67 +3,81 @@ import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, Alert
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AddKpiModal } from "./AddKpiModal";
+import { KpiData } from "@/pages/Index";
 
-const kpiCategories = [
+const initialKpiCategories = [
   {
     id: "operations",
     name: "Operations",
     kpis: [
-      { id: "wait-time", name: "Branch Wait Time", icon: Clock, severity: "critical", status: "critical", isFavorite: true },
-      { id: "atm-downtime", name: "ATM Downtime", icon: AlertTriangle, severity: "critical", status: "warning", isFavorite: false },
-      { id: "transaction-volume", name: "Transaction Volume", icon: Activity, severity: "info", status: "normal", isFavorite: true },
-      { id: "service-quality", name: "Service Quality", icon: Headphones, severity: "warning", status: "warning", isFavorite: false },
-      { id: "system-uptime", name: "System Uptime", icon: Zap, severity: "info", status: "normal", isFavorite: false },
+      { 
+        id: "wait-time", 
+        name: "Branch Wait Time", 
+        domain: "operations",
+        description: "Monitor branch wait times",
+        alertTableName: "ace_alerts.branch_wait_time_alerts",
+        defaultEmailTo: ["branch.manager@adib.ae", "operations@adib.ae"],
+        defaultEmailCC: ["analytics@adib.ae"],
+        defaultSubject: "Alert: Branch Wait Time Exceeded - Immediate Action Required",
+        defaultBody: "Dear Team,\n\nWe have identified critical alerts that require immediate attention.\n\nPlease review the alert details below and take necessary action within 2 hours.\n\nBest regards,",
+        defaultFooter: "ADIB Analytics Team",
+        icon: Clock, 
+        severity: "critical", 
+        status: "critical", 
+        isFavorite: true,
+        identifier: "kpi_branch_wait",
+        severityTagging: true,
+        ownerDepartment: "Branch Operations"
+      },
+      { id: "atm-downtime", name: "ATM Downtime", domain: "operations", description: "Track ATM availability", alertTableName: "ace_alerts.atm_downtime_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: AlertTriangle, severity: "critical", status: "warning", isFavorite: false, identifier: "kpi_atm_downtime", severityTagging: false, ownerDepartment: "IT Operations" },
+      { id: "transaction-volume", name: "Transaction Volume", domain: "operations", description: "Monitor transaction volumes", alertTableName: "ace_alerts.transaction_volume_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: Activity, severity: "info", status: "normal", isFavorite: true, identifier: "kpi_transaction_volume", severityTagging: false, ownerDepartment: "Operations" },
+      { id: "service-quality", name: "Service Quality", domain: "operations", description: "Track service quality metrics", alertTableName: "ace_alerts.service_quality_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: Headphones, severity: "warning", status: "warning", isFavorite: false, identifier: "kpi_service_quality", severityTagging: false, ownerDepartment: "Customer Service" },
+      { id: "system-uptime", name: "System Uptime", domain: "operations", description: "Monitor system availability", alertTableName: "ace_alerts.system_uptime_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: Zap, severity: "info", status: "normal", isFavorite: false, identifier: "kpi_system_uptime", severityTagging: false, ownerDepartment: "IT Operations" },
     ]
   },
   {
     id: "sales",
     name: "Sales & Marketing",
     kpis: [
-      { id: "card-sales", name: "Card Sales Drop", icon: CreditCard, severity: "warning", status: "warning", isFavorite: true },
-      { id: "loan-applications", name: "Loan Applications", icon: TrendingUp, severity: "info", status: "normal", isFavorite: false },
-      { id: "customer-acquisition", name: "Customer Acquisition", icon: Users, severity: "info", status: "normal", isFavorite: false },
-      { id: "product-adoption", name: "Product Adoption", icon: FileText, severity: "warning", status: "warning", isFavorite: false },
+      { id: "card-sales", name: "Card Sales Drop", domain: "sales", description: "Monitor card sales performance", alertTableName: "ace_alerts.card_sales_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: CreditCard, severity: "warning", status: "warning", isFavorite: true, identifier: "kpi_card_sales", severityTagging: false, ownerDepartment: "Sales" },
+      { id: "loan-applications", name: "Loan Applications", domain: "sales", description: "Track loan application volumes", alertTableName: "ace_alerts.loan_applications_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: TrendingUp, severity: "info", status: "normal", isFavorite: false, identifier: "kpi_loan_applications", severityTagging: false, ownerDepartment: "Lending" },
+      { id: "customer-acquisition", name: "Customer Acquisition", domain: "sales", description: "Monitor new customer acquisition", alertTableName: "ace_alerts.customer_acquisition_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: Users, severity: "info", status: "normal", isFavorite: false, identifier: "kpi_customer_acquisition", severityTagging: false, ownerDepartment: "Marketing" },
+      { id: "product-adoption", name: "Product Adoption", domain: "sales", description: "Track product adoption rates", alertTableName: "ace_alerts.product_adoption_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: FileText, severity: "warning", status: "warning", isFavorite: false, identifier: "kpi_product_adoption", severityTagging: false, ownerDepartment: "Product Marketing" },
     ]
   },
   {
     id: "financial",
     name: "Financial",
     kpis: [
-      { id: "deposit-balance", name: "Deposit Balances", icon: DollarSign, severity: "info", status: "normal", isFavorite: true },
-      { id: "loan-portfolio", name: "Loan Portfolio", icon: Calculator, severity: "warning", status: "warning", isFavorite: false },
-      { id: "profit-margins", name: "Profit Margins", icon: TrendingUp, severity: "info", status: "normal", isFavorite: false },
-      { id: "cost-ratios", name: "Cost Ratios", icon: Calculator, severity: "warning", status: "critical", isFavorite: false },
+      { id: "deposit-balance", name: "Deposit Balances", domain: "financial", description: "Monitor deposit balances", alertTableName: "ace_alerts.deposit_balance_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: DollarSign, severity: "info", status: "normal", isFavorite: true, identifier: "kpi_deposit_balance", severityTagging: false, ownerDepartment: "Treasury" },
+      { id: "loan-portfolio", name: "Loan Portfolio", domain: "financial", description: "Monitor loan portfolio health", alertTableName: "ace_alerts.loan_portfolio_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: Calculator, severity: "warning", status: "warning", isFavorite: false, identifier: "kpi_loan_portfolio", severityTagging: false, ownerDepartment: "Risk Management" },
+      { id: "profit-margins", name: "Profit Margins", domain: "financial", description: "Track profit margin trends", alertTableName: "ace_alerts.profit_margins_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: TrendingUp, severity: "info", status: "normal", isFavorite: false, identifier: "kpi_profit_margins", severityTagging: false, ownerDepartment: "Finance" },
+      { id: "cost-ratios", name: "Cost Ratios", domain: "financial", description: "Monitor cost efficiency ratios", alertTableName: "ace_alerts.cost_ratios_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: Calculator, severity: "warning", status: "critical", isFavorite: false, identifier: "kpi_cost_ratios", severityTagging: false, ownerDepartment: "Finance" },
     ]
   },
   {
     id: "compliance",
     name: "Risk & Compliance",
     kpis: [
-      { id: "customer-satisfaction", name: "Customer Satisfaction", icon: Users, severity: "warning", status: "warning", isFavorite: true },
-      { id: "regulatory-compliance", name: "Regulatory Compliance", icon: Shield, severity: "critical", status: "normal", isFavorite: false },
-      { id: "fraud-detection", name: "Fraud Detection", icon: AlertTriangle, severity: "info", status: "normal", isFavorite: false },
-      { id: "audit-findings", name: "Audit Findings", icon: FileText, severity: "warning", status: "warning", isFavorite: false },
+      { id: "customer-satisfaction", name: "Customer Satisfaction", domain: "compliance", description: "Monitor customer satisfaction scores", alertTableName: "ace_alerts.customer_satisfaction_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: Users, severity: "warning", status: "warning", isFavorite: true, identifier: "kpi_customer_satisfaction", severityTagging: false, ownerDepartment: "Customer Experience" },
+      { id: "regulatory-compliance", name: "Regulatory Compliance", domain: "compliance", description: "Track regulatory compliance metrics", alertTableName: "ace_alerts.regulatory_compliance_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: Shield, severity: "critical", status: "normal", isFavorite: false, identifier: "kpi_regulatory_compliance", severityTagging: true, ownerDepartment: "Compliance" },
+      { id: "fraud-detection", name: "Fraud Detection", domain: "compliance", description: "Monitor fraud detection metrics", alertTableName: "ace_alerts.fraud_detection_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: AlertTriangle, severity: "info", status: "normal", isFavorite: false, identifier: "kpi_fraud_detection", severityTagging: true, ownerDepartment: "Security" },
+      { id: "audit-findings", name: "Audit Findings", domain: "compliance", description: "Track audit findings and remediation", alertTableName: "ace_alerts.audit_findings_alerts", defaultEmailTo: [], defaultEmailCC: [], defaultSubject: "", defaultBody: "", defaultFooter: "", icon: FileText, severity: "warning", status: "warning", isFavorite: false, identifier: "kpi_audit_findings", severityTagging: true, ownerDepartment: "Internal Audit" },
     ]
   }
 ];
 
-// Get all favorite KPIs across categories
-const getFavoriteKpis = () => {
-  return kpiCategories.flatMap(category => 
-    category.kpis.filter(kpi => kpi.isFavorite)
-  );
-};
+// Remove unused function since favorites are calculated in component
 
 interface BankingSidebarProps {
-  selectedKpi: string;
-  onKpiSelect: (kpiId: string) => void;
+  selectedKpi: KpiData | null;
+  onKpiSelect: (kpi: KpiData) => void;
   onNavigateToTab?: (tabId: string) => void;
 }
 
 export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: BankingSidebarProps) {
   const [toggleFavorites, setToggleFavorites] = useState(false);
-  const [categories, setCategories] = useState(kpiCategories);
+  const [categories, setCategories] = useState(initialKpiCategories);
   const [isAddKpiModalOpen, setIsAddKpiModalOpen] = useState(false);
   const [newlyAddedKpi, setNewlyAddedKpi] = useState<string | null>(null);
   
@@ -111,7 +125,7 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
     setNewlyAddedKpi(newKpi.id);
     
     // Auto-select the new KPI
-    onKpiSelect(newKpi.id);
+    onKpiSelect(newKpi);
     
     // Navigate to Check & Send Alerts tab if callback is provided
     if (onNavigateToTab) {
@@ -133,7 +147,7 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
 
   const renderKpiItem = (kpi: any) => {
     const Icon = kpi.icon;
-    const isSelected = selectedKpi === kpi.id;
+    const isSelected = selectedKpi?.id === kpi.id;
     const isNewlyAdded = newlyAddedKpi === kpi.id;
     
     return (
@@ -147,7 +161,7 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
         )}
       >
         <button
-          onClick={() => onKpiSelect(kpi.id)}
+          onClick={() => onKpiSelect(kpi)}
           className="flex items-center gap-3 flex-1 text-left"
         >
           <div className={cn(
