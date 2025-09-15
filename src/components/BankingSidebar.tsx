@@ -92,25 +92,29 @@ export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps
     const isSelected = selectedKpi === kpi.id;
     
     return (
-      <button
+      <div
         key={kpi.id}
-        onClick={() => onKpiSelect(kpi.id)}
         className={cn(
-          "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200",
+          "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
           "hover:bg-banking-sidebar-accent/10 group",
           isSelected && "bg-banking-sidebar-accent text-white shadow-glow"
         )}
       >
-        <div className={cn(
-          "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-          isSelected ? "bg-white/20" : "bg-white/10 group-hover:bg-white/15"
-        )}>
-          <Icon className="w-4 h-4" />
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm leading-tight">{kpi.name}</div>
-        </div>
+        <button
+          onClick={() => onKpiSelect(kpi.id)}
+          className="flex items-center gap-3 flex-1 text-left"
+        >
+          <div className={cn(
+            "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+            isSelected ? "bg-white/20" : "bg-white/10 group-hover:bg-white/15"
+          )}>
+            <Icon className="w-4 h-4" />
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <div className="font-medium text-sm leading-tight">{kpi.name}</div>
+          </div>
+        </button>
 
         <button
           onClick={(e) => toggleFavorite(kpi.id, e)}
@@ -130,7 +134,7 @@ export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps
           "w-2 h-2 rounded-full",
           getStatusDot(kpi.status)
         )} />
-      </button>
+      </div>
     );
   };
 
@@ -204,7 +208,10 @@ export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps
 
       {/* Add KPI Button */}
       <div className="p-4 border-t border-banking-border/20">
-        <button className="w-full flex items-center gap-3 p-3 rounded-lg border border-banking-sidebar-accent/30 text-banking-sidebar-accent hover:bg-banking-sidebar-accent/10 transition-colors">
+        <button 
+          onClick={() => console.log("Add KPI clicked")}
+          className="w-full flex items-center gap-3 p-3 rounded-lg border border-banking-sidebar-accent/30 text-banking-sidebar-accent hover:bg-banking-sidebar-accent/10 transition-colors"
+        >
           <Plus className="w-4 h-4" />
           <span className="text-sm font-medium">Add KPI</span>
         </button>
