@@ -61,7 +61,22 @@ interface BankingSidebarProps {
 
 export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps) {
   const [toggleFavorites, setToggleFavorites] = useState(false);
-  const favoriteKpis = getFavoriteKpis();
+  const [categories, setCategories] = useState(kpiCategories);
+  
+  const favoriteKpis = categories.flatMap(category => 
+    category.kpis.filter(kpi => kpi.isFavorite)
+  );
+
+  const toggleFavorite = (kpiId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent KPI selection when clicking star
+    
+    setCategories(prev => prev.map(category => ({
+      ...category,
+      kpis: category.kpis.map(kpi => 
+        kpi.id === kpiId ? { ...kpi, isFavorite: !kpi.isFavorite } : kpi
+      )
+    })));
+  };
   
   const getStatusDot = (status: string) => {
     const colors = {
@@ -97,9 +112,19 @@ export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps
           <div className="font-medium text-sm leading-tight">{kpi.name}</div>
         </div>
 
-        {kpi.isFavorite && (
-          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-        )}
+        <button
+          onClick={(e) => toggleFavorite(kpi.id, e)}
+          className="p-1 rounded-md hover:bg-white/10 transition-colors"
+        >
+          <Star 
+            className={cn(
+              "w-3 h-3 transition-colors",
+              kpi.isFavorite 
+                ? "fill-yellow-400 text-yellow-400" 
+                : "text-banking-sidebar-foreground/40 hover:text-yellow-400"
+            )} 
+          />
+        </button>
         
         <div className={cn(
           "w-2 h-2 rounded-full",
@@ -156,7 +181,7 @@ export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps
 
         {/* Categories */}
         <Accordion type="multiple" defaultValue={["operations", "sales"]} className="space-y-2">
-          {kpiCategories.map((category) => (
+          {categories.map((category) => (
             <AccordionItem key={category.id} value={category.id} className="border-none">
               <AccordionTrigger className="py-2 px-3 rounded-lg hover:bg-banking-sidebar-accent/5 transition-colors [&[data-state=open]>svg]:rotate-180">
                 <div className="flex items-center gap-2">
