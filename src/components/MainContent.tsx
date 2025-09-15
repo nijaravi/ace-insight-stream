@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertsPanel } from "./AlertsPanel";
-import { EmailSettingsPanel } from "./EmailSettingsPanel";
-import { SentAlertsPanel } from "./SentAlertsPanel";
+import { CheckSendAlertsPanel } from "./CheckSendAlertsPanel";
+import { NewEmailSettingsPanel } from "./NewEmailSettingsPanel";
+import { NewSentAlertsHistoryPanel } from "./NewSentAlertsHistoryPanel";
 
 interface MainContentProps {
   selectedKpi: string;
@@ -18,32 +18,32 @@ export function MainContent({ selectedKpi }: MainContentProps) {
               value="alerts" 
               className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
             >
-              📍 Check Alerts
+              📤 Check & Send Alerts
             </TabsTrigger>
             <TabsTrigger 
               value="settings"
               className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
             >
-              📧 Email Settings
+              ✉️ Email Settings
             </TabsTrigger>
             <TabsTrigger 
               value="history"
               className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
             >
-              📜 Sent History
+              📜 Sent Alerts History
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="alerts" className="mt-6">
-            <AlertsPanel selectedKpi={selectedKpi} />
+            <CheckSendAlertsPanel selectedKpi={selectedKpi} />
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6">
-            <EmailSettingsPanel selectedKpi={selectedKpi} />
+            <NewEmailSettingsPanel selectedKpi={selectedKpi} />
           </TabsContent>
 
           <TabsContent value="history" className="mt-6">
-            <SentAlertsPanel selectedKpi={selectedKpi} />
+            <NewSentAlertsHistoryPanel selectedKpi={selectedKpi} />
           </TabsContent>
         </Tabs>
       </div>

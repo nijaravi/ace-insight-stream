@@ -1,18 +1,24 @@
 import { useState } from "react";
-import { Mail, Paperclip, Eye, Save } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-interface EmailSettingsProps {
+interface NewEmailSettingsPanelProps {
   selectedKpi: string;
 }
 
-export function EmailSettingsPanel({ selectedKpi }: EmailSettingsProps) {
+export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProps) {
   const [toRecipients, setToRecipients] = useState<string[]>([
     "branch.manager@adib.ae",
     "operations@adib.ae"
@@ -25,30 +31,18 @@ export function EmailSettingsPanel({ selectedKpi }: EmailSettingsProps) {
   const [subject, setSubject] = useState("Alert: Branch Wait Time Exceeded - Immediate Action Required");
   const [emailBody, setEmailBody] = useState(`Dear Team,
 
-We have identified critical alerts for {KPI_NAME} that require immediate attention.
+We have identified critical alerts that require immediate attention.
 
-Alert Summary:
-- {ALERT_COUNT} alerts detected
-- Severity levels: {SEVERITY_BREAKDOWN}
-- Entities affected: {ENTITY_LIST}
+Please review the alert details below and take necessary action within 2 hours.
 
-Please review the attached details and take necessary action within 2 hours.
+Best regards,`);
+  const [footerMessage, setFooterMessage] = useState("ADIB Analytics Team");
 
-Key Metrics:
-- Current Performance: {CURRENT_METRIC}
-- SLA Target: {SLA_TARGET}
-- Deviation: {DEVIATION_PERCENTAGE}
-
-Next Steps:
-1. Review individual branch performance
-2. Implement corrective measures
-3. Report back within 2 hours
-
-Best regards,
-ADIB Analytics Team`);
-  
-  const [attachCsv, setAttachCsv] = useState(true);
-  const [embedTable, setEmbedTable] = useState(true);
+  // Mock selected alerts for preview
+  const selectedAlerts = [
+    { id: "1", alertDate: "2024-09-15", alertDetails: "Mall Branch breached wait time SLA (28 mins avg)" },
+    { id: "2", alertDate: "2024-09-15", alertDetails: "Downtown Branch has 22 mins avg wait time" }
+  ];
 
   const addRecipient = (email: string, type: 'to' | 'cc') => {
     if (!email || !email.includes('@')) return;
@@ -80,24 +74,9 @@ ADIB Analytics Team`);
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
-            📧 Email Settings
-          </h2>
-          <p className="text-muted-foreground">Customize alert email configuration</p>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Save className="w-4 h-4" />
-            Save as Draft
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Eye className="w-4 h-4" />
-            Preview
-          </Button>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-primary">✉️ Email Settings</h2>
+        <p className="text-muted-foreground">Customize email recipients, subject, and body for alert notifications</p>
       </div>
 
       <div className="bg-card border border-banking-border rounded-lg p-6 space-y-6 shadow-card">
@@ -105,7 +84,7 @@ ADIB Analytics Team`);
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* To Recipients */}
           <div className="space-y-3">
-            <Label className="text-sm font-semibold">To Recipients</Label>
+            <Label className="text-sm font-semibold">📤 To Recipients</Label>
             <div className="space-y-2">
               <div className="flex flex-wrap gap-2">
                 {toRecipients.map((email) => (
@@ -133,7 +112,7 @@ ADIB Analytics Team`);
 
           {/* CC Recipients */}
           <div className="space-y-3">
-            <Label className="text-sm font-semibold">CC Recipients</Label>
+            <Label className="text-sm font-semibold">📤 CC Recipients</Label>
             <div className="space-y-2">
               <div className="flex flex-wrap gap-2">
                 {ccRecipients.map((email) => (
@@ -162,7 +141,7 @@ ADIB Analytics Team`);
 
         {/* Subject */}
         <div className="space-y-3">
-          <Label htmlFor="subject" className="text-sm font-semibold">Email Subject</Label>
+          <Label htmlFor="subject" className="text-sm font-semibold">📝 Subject</Label>
           <Input
             id="subject"
             value={subject}
@@ -173,46 +152,79 @@ ADIB Analytics Team`);
 
         {/* Email Body */}
         <div className="space-y-3">
-          <Label htmlFor="body" className="text-sm font-semibold">Email Body</Label>
+          <Label htmlFor="body" className="text-sm font-semibold">🧾 Body</Label>
           <Textarea
             id="body"
             value={emailBody}
             onChange={(e) => setEmailBody(e.target.value)}
-            rows={12}
-            className="font-mono text-sm"
-            placeholder="Use variables like {KPI_NAME}, {ALERT_COUNT}, {ENTITY_LIST}..."
+            rows={8}
+            className="font-sans text-sm"
           />
-          <div className="text-xs text-muted-foreground">
-            Available variables: {"{KPI_NAME}"}, {"{ALERT_COUNT}"}, {"{SEVERITY_BREAKDOWN}"}, {"{ENTITY_LIST}"}, {"{CURRENT_METRIC}"}, {"{SLA_TARGET}"}, {"{DEVIATION_PERCENTAGE}"}
-          </div>
         </div>
 
-        {/* Email Options */}
-        <div className="space-y-4 border-t border-banking-border pt-6">
-          <h3 className="text-sm font-semibold">Email Options</h3>
+        {/* Footer Message */}
+        <div className="space-y-3">
+          <Label htmlFor="footer" className="text-sm font-semibold">👣 Footer Message</Label>
+          <Textarea
+            id="footer"
+            value={footerMessage}
+            onChange={(e) => setFooterMessage(e.target.value)}
+            rows={2}
+            className="font-sans text-sm"
+            placeholder="Optional closing message like 'Regards, ACE Team'"
+          />
+        </div>
+      </div>
+
+      {/* Preview Area */}
+      <div className="bg-card border border-banking-border rounded-lg p-6 space-y-4 shadow-card">
+        <h3 className="text-lg font-semibold">📋 Email Preview</h3>
+        
+        <div className="bg-muted/20 border border-banking-border rounded-md p-4 space-y-4">
+          <div className="space-y-2 text-sm">
+            <div><strong>To:</strong> {toRecipients.join(', ')}</div>
+            <div><strong>CC:</strong> {ccRecipients.join(', ')}</div>
+            <div><strong>Subject:</strong> {subject}</div>
+          </div>
           
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label className="text-sm">Attach CSV Export</Label>
-              <p className="text-xs text-muted-foreground">Include detailed alert data as CSV attachment</p>
+          <div className="border-t border-banking-border pt-4">
+            <div className="whitespace-pre-wrap text-sm mb-4">{emailBody}</div>
+            
+            {selectedAlerts.length > 0 && (
+              <div className="mb-4">
+                <h4 className="font-semibold mb-2">Alert Details:</h4>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Alert Date</TableHead>
+                      <TableHead>Alert Details</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedAlerts.map((alert) => (
+                      <TableRow key={alert.id}>
+                        <TableCell>{alert.alertDate}</TableCell>
+                        <TableCell>{alert.alertDetails}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+            
+            <div className="whitespace-pre-wrap text-sm text-muted-foreground">
+              {footerMessage}
             </div>
-            <Switch
-              checked={attachCsv}
-              onCheckedChange={setAttachCsv}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label className="text-sm">Embed Table in Email</Label>
-              <p className="text-xs text-muted-foreground">Include formatted table directly in email body</p>
-            </div>
-            <Switch
-              checked={embedTable}
-              onCheckedChange={setEmbedTable}
-            />
           </div>
         </div>
+      </div>
+
+      {/* Send Button */}
+      <div className="flex justify-end">
+        <Button className="gap-2 bg-accent hover:bg-accent/90">
+          <Send className="w-4 h-4" />
+          Send Email
+        </Button>
       </div>
     </div>
   );
