@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, AlertTriangle, Plus, Star, Building2, Shield, Headphones, Zap, Calculator, FileText, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { AddKpiModal } from "./AddKpiModal";
 
 const kpiCategories = [
   {
@@ -57,11 +58,14 @@ const getFavoriteKpis = () => {
 interface BankingSidebarProps {
   selectedKpi: string;
   onKpiSelect: (kpiId: string) => void;
+  onNavigateToTab?: (tabId: string) => void;
 }
 
-export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps) {
+export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: BankingSidebarProps) {
   const [toggleFavorites, setToggleFavorites] = useState(false);
   const [categories, setCategories] = useState(kpiCategories);
+  const [isAddKpiModalOpen, setIsAddKpiModalOpen] = useState(false);
+  const [newlyAddedKpi, setNewlyAddedKpi] = useState<string | null>(null);
   
   const favoriteKpis = categories.flatMap(category => 
     category.kpis.filter(kpi => kpi.isFavorite)
@@ -77,6 +81,46 @@ export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps
       )
     })));
   };
+
+  const handleAddKpi = (kpiData: any) => {
+    // Find the appropriate category or create default icons based on domain
+    const domainIcons = {
+      operations: Clock,
+      sales: TrendingUp,
+      financial: DollarSign,
+      compliance: Shield
+    };
+
+    const newKpi = {
+      ...kpiData,
+      icon: domainIcons[kpiData.domain as keyof typeof domainIcons] || Activity
+    };
+
+    // Add KPI to the appropriate category
+    setCategories(prev => prev.map(category => {
+      if (category.id === kpiData.domain) {
+        return {
+          ...category,
+          kpis: [...category.kpis, newKpi]
+        };
+      }
+      return category;
+    }));
+
+    // Track newly added KPI for highlighting
+    setNewlyAddedKpi(newKpi.id);
+    
+    // Auto-select the new KPI
+    onKpiSelect(newKpi.id);
+    
+    // Navigate to Check & Send Alerts tab if callback is provided
+    if (onNavigateToTab) {
+      onNavigateToTab("check-send");
+    }
+
+    // Clear highlight after animation
+    setTimeout(() => setNewlyAddedKpi(null), 3000);
+  };
   
   const getStatusDot = (status: string) => {
     const colors = {
@@ -90,6 +134,7 @@ export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps
   const renderKpiItem = (kpi: any) => {
     const Icon = kpi.icon;
     const isSelected = selectedKpi === kpi.id;
+    const isNewlyAdded = newlyAddedKpi === kpi.id;
     
     return (
       <div
@@ -97,7 +142,8 @@ export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps
         className={cn(
           "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
           "hover:bg-banking-sidebar-accent/10 group",
-          isSelected && "bg-banking-sidebar-accent text-white shadow-glow"
+          isSelected && "bg-banking-sidebar-accent text-white shadow-glow",
+          isNewlyAdded && "animate-pulse ring-2 ring-banking-sidebar-accent/50"
         )}
       >
         <button
@@ -209,13 +255,19 @@ export function BankingSidebar({ selectedKpi, onKpiSelect }: BankingSidebarProps
       {/* Add KPI Button */}
       <div className="p-4 border-t border-banking-border/20">
         <button 
-          onClick={() => console.log("Add KPI clicked")}
+          onClick={() => setIsAddKpiModalOpen(true)}
           className="w-full flex items-center gap-3 p-3 rounded-lg border border-banking-sidebar-accent/30 text-banking-sidebar-accent hover:bg-banking-sidebar-accent/10 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span className="text-sm font-medium">Add KPI</span>
         </button>
       </div>
+
+      <AddKpiModal
+        isOpen={isAddKpiModalOpen}
+        onClose={() => setIsAddKpiModalOpen(false)}
+        onAddKpi={handleAddKpi}
+      />
     </div>
   );
 }

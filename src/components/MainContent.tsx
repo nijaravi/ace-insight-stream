@@ -6,13 +6,34 @@ import { NewSentAlertsHistoryPanel } from "./NewSentAlertsHistoryPanel";
 
 interface MainContentProps {
   selectedKpi: string;
+  activeTab?: string;
+  onTabChange?: (tabId: string) => void;
 }
 
-export function MainContent({ selectedKpi }: MainContentProps) {
+export function MainContent({ selectedKpi, activeTab: externalActiveTab, onTabChange }: MainContentProps) {
+  const [internalActiveTab, setInternalActiveTab] = useState("check-send");
+  
+  const activeTab = externalActiveTab || internalActiveTab;
+  const setActiveTab = onTabChange || setInternalActiveTab;
+
+  // Map internal tab names to component values
+  const tabValue = activeTab === "check-send" ? "alerts" : 
+                   activeTab === "email-settings" ? "settings" : 
+                   activeTab === "history" ? "history" : "alerts";
+
   return (
     <div className="flex-1 bg-banking-panel p-8">
       <div className="max-w-7xl mx-auto">
-        <Tabs defaultValue="alerts" className="space-y-6">
+        <Tabs 
+          value={tabValue} 
+          onValueChange={(value) => {
+            const tabId = value === "alerts" ? "check-send" : 
+                         value === "settings" ? "email-settings" : 
+                         value === "history" ? "history" : "check-send";
+            setActiveTab(tabId);
+          }}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-3 bg-card border border-banking-border">
             <TabsTrigger 
               value="alerts" 
