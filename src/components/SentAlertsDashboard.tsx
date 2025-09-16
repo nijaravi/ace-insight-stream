@@ -186,13 +186,13 @@ export function SentAlertsDashboard() {
   };
 
   return (
-    <div className="p-6 space-y-6 bg-background min-h-screen">
+    <div className="p-8 space-y-8 bg-background min-h-screen">
       {/* Page Header */}
-      <div className="space-y-2">
+      <div className="space-y-3 pb-2">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           📊 Sent Alerts Dashboard
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-lg">
           View alerts triggered manually or automatically across the platform.
         </p>
       </div>
@@ -205,8 +205,8 @@ export function SentAlertsDashboard() {
             Filters
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <CardContent className="space-y-6 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {/* Date Range */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Date Range</label>
@@ -314,7 +314,7 @@ export function SentAlertsDashboard() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 pt-2">
             <Input
               placeholder="Search alerts, KPIs, departments..."
               value={searchQuery}
@@ -340,16 +340,16 @@ export function SentAlertsDashboard() {
             Alerts ({filteredAlerts.length} results)
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           {filteredAlerts.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-12 text-muted-foreground">
               <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p className="text-lg font-medium">No alerts found for selected filters</p>
               <p>Try changing the date range or KPI selection</p>
             </div>
           ) : (
             <>
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -365,40 +365,40 @@ export function SentAlertsDashboard() {
                   </TableHeader>
                   <TableBody>
                     {paginatedAlerts.map((alert) => (
-                      <TableRow key={alert.id}>
-                        <TableCell className="font-mono text-sm">
-                          {format(alert.alertDate, "MMM dd, HH:mm")}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{alert.department}</Badge>
-                        </TableCell>
-                        <TableCell className="font-medium">{alert.kpiName}</TableCell>
-                        <TableCell className="max-w-xs truncate">
-                          {alert.alertSummary}
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            {alert.recipients.slice(0, 2).map((email, idx) => (
-                              <div key={idx} className="text-sm font-mono">
-                                {email}
-                              </div>
-                            ))}
-                            {alert.recipients.length > 2 && (
-                              <div className="text-xs text-muted-foreground">
-                                +{alert.recipients.length - 2} more
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={alert.triggeredBy === "Automated" ? "default" : "secondary"}>
-                            {alert.triggeredBy}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="max-w-xs truncate">
-                          {alert.comments || "-"}
-                        </TableCell>
-                        <TableCell>
+                      <TableRow key={alert.id} className="hover:bg-muted/50">
+                         <TableCell className="font-mono text-sm py-4">
+                           {format(alert.alertDate, "MMM dd, HH:mm")}
+                         </TableCell>
+                         <TableCell className="py-4">
+                           <Badge variant="outline">{alert.department}</Badge>
+                         </TableCell>
+                         <TableCell className="font-medium py-4">{alert.kpiName}</TableCell>
+                         <TableCell className="max-w-xs truncate py-4">
+                           {alert.alertSummary}
+                         </TableCell>
+                         <TableCell className="py-4">
+                           <div className="space-y-1">
+                             {alert.recipients.slice(0, 2).map((email, idx) => (
+                               <div key={idx} className="text-sm font-mono">
+                                 {email}
+                               </div>
+                             ))}
+                             {alert.recipients.length > 2 && (
+                               <div className="text-xs text-muted-foreground">
+                                 +{alert.recipients.length - 2} more
+                               </div>
+                             )}
+                           </div>
+                         </TableCell>
+                         <TableCell className="py-4">
+                           <Badge variant={alert.triggeredBy === "Automated" ? "default" : "secondary"}>
+                             {alert.triggeredBy}
+                           </Badge>
+                         </TableCell>
+                         <TableCell className="max-w-xs truncate py-4">
+                           {alert.comments || "-"}
+                         </TableCell>
+                         <TableCell className="py-4">
                           <div className="flex items-center gap-2">
                             <Button
                               size="sm"
