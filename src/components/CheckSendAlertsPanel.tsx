@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
-import { Calendar, RefreshCw, Send, Mail } from "lucide-react";
+import { Calendar, RefreshCw, Send, Mail, Edit3, CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -27,38 +32,53 @@ interface CheckSendAlertsPanelProps {
 
 export function CheckSendAlertsPanel({ selectedKpi }: CheckSendAlertsPanelProps) {
   const [tableName, setTableName] = useState(selectedKpi?.alertTableName || "ace_alerts.branch_wait_time_alerts");
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [selectedAlerts, setSelectedAlerts] = useState<Set<string>>(new Set());
   const [comments, setComments] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditingTableName, setIsEditingTableName] = useState(false);
+  const [editTableName, setEditTableName] = useState(tableName);
 
   // Mock data for demonstration
   const mockAlerts: Alert[] = [
     {
       id: "1",
-      alertDate: selectedDate,
+      alertDate: format(selectedDate, 'yyyy-MM-dd'),
       alertDetails: "Mall Branch breached wait time SLA (28 mins avg)"
     },
     {
       id: "2", 
-      alertDate: selectedDate,
+      alertDate: format(selectedDate, 'yyyy-MM-dd'),
       alertDetails: "Downtown Branch has 22 mins avg wait time"
     },
     {
       id: "3",
-      alertDate: selectedDate,
+      alertDate: format(selectedDate, 'yyyy-MM-dd'),
       alertDetails: "Airport Branch showing 18 mins wait time"
     }
   ];
 
   const loadAlerts = async () => {
     setIsLoading(true);
+    setSelectedAlerts(new Set()); // Clear selections when loading new data
     // Simulate API call
     setTimeout(() => {
       setAlerts(mockAlerts);
       setIsLoading(false);
-    }, 1000);
+    }, 800);
+  };
+
+  const handleTableNameSave = () => {
+    setTableName(editTableName);
+    setIsEditingTableName(false);
+    loadAlerts(); // Auto-reload when table name changes
+  };
+
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date);
+    }
   };
 
   const handleAlertSelect = (alertId: string, checked: boolean) => {
@@ -79,8 +99,19 @@ export function CheckSendAlertsPanel({ selectedKpi }: CheckSendAlertsPanelProps)
   useEffect(() => {
     if (selectedKpi?.alertTableName) {
       setTableName(selectedKpi.alertTableName);
+      setEditTableName(selectedKpi.alertTableName);
     }
   }, [selectedKpi]);
+
+  // Auto-load alerts when date changes
+  useEffect(() => {
+    loadAlerts();
+  }, [selectedDate]);
+
+  // Initial load
+  useEffect(() => {
+    loadAlerts();
+  }, []);
 
   const getKpiName = (kpi: KpiData | null) => {
     return kpi?.name || "Unknown KPI";
@@ -94,54 +125,84 @@ export function CheckSendAlertsPanel({ selectedKpi }: CheckSendAlertsPanelProps)
         <p className="text-muted-foreground">Load alert records for {getKpiName(selectedKpi)} and send notifications</p>
       </div>
 
-      {/* Alert Data Controls */}
-      <div className="bg-card border border-banking-border rounded-lg p-6 space-y-4 shadow-card">
-        <h3 className="text-lg font-semibold">📋 Alert Data Controls</h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="tableName">📄 Alert Table Name</Label>
-            <Input
-              id="tableName"
-              value={tableName}
-              onChange={(e) => setTableName(e.target.value)}
-              placeholder="e.g., ace_alerts.branch_wait_time_alerts"
-            />
+      {/* Top Bar - Table Name and Date Picker */}
+      <div className="flex items-center justify-between p-4 bg-card border border-banking-border rounded-lg shadow-card">
+        <div className="flex items-center gap-4">
+          {/* Table Name Display with Edit */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-muted-foreground">📄 Table:</span>
+            <span className="font-mono text-sm bg-muted px-2 py-1 rounded">{tableName}</span>
+            <Dialog open={isEditingTableName} onOpenChange={setIsEditingTableName}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                  <Edit3 className="w-3 h-3" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit Alert Table Name</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-table-name">Alert Table Name</Label>
+                    <Input
+                      id="edit-table-name"
+                      value={editTableName}
+                      onChange={(e) => setEditTableName(e.target.value)}
+                      placeholder="e.g., ace_alerts.branch_wait_time_alerts"
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" onClick={() => setIsEditingTableName(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleTableNameSave}>
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="alertDate">📅 Date Picker</Label>
-            <Input
-              id="alertDate"
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-            />
-          </div>
-          
-          <div className="flex items-end">
-            <Button 
-              onClick={loadAlerts}
-              disabled={isLoading}
-              className="gap-2 bg-accent hover:bg-accent/90"
-            >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Load Alerts
-            </Button>
-          </div>
+        </div>
+
+        {/* Date Picker */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-muted-foreground">📅 Date:</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[240px] justify-start text-left font-normal",
+                  !selectedDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateChange}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
-      {/* Alerts Table Viewer */}
-      {alerts.length > 0 && (
-        <div className="bg-card border border-banking-border rounded-lg overflow-hidden shadow-card">
-          <div className="p-4 border-b border-banking-border">
-            <h3 className="text-lg font-semibold">📋 Alerts Table Viewer</h3>
-            <p className="text-sm text-muted-foreground">
-              Loaded {alerts.length} alerts for {selectedDate}
-            </p>
-          </div>
-          
+      {/* Alerts Table */}
+      {isLoading ? (
+        <div className="bg-card border border-banking-border rounded-lg p-8 text-center shadow-card">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">Loading alerts...</p>
+        </div>
+      ) : alerts.length > 0 ? (
+        <div className="bg-card border border-banking-border rounded-lg overflow-hidden shadow-card">          
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/30">
@@ -177,6 +238,11 @@ export function CheckSendAlertsPanel({ selectedKpi }: CheckSendAlertsPanelProps)
             </TableBody>
           </Table>
         </div>
+      ) : (
+        <div className="bg-card border border-banking-border rounded-lg p-8 text-center shadow-card">
+          <Calendar className="w-8 h-8 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">No alerts found for {format(selectedDate, "PPP")}</p>
+        </div>
       )}
 
       {/* Actions */}
@@ -200,7 +266,7 @@ export function CheckSendAlertsPanel({ selectedKpi }: CheckSendAlertsPanelProps)
               disabled={selectedAlerts.size === 0}
             >
               <Send className="w-4 h-4" />
-              Send Alert
+              Send Selected Alerts
             </Button>
           </div>
         </div>
