@@ -137,7 +137,7 @@ export function SentAlertsDashboard() {
       {/* Page Header */}
       <div className="space-y-3 pb-2">
         <h1 className="text-3xl font-bold flex items-center gap-2">
-          📊 Sent Alerts Dashboard
+          📊 Alerts Dashboard
         </h1>
         <p className="text-muted-foreground text-lg">
           View alerts triggered manually or automatically across the platform.

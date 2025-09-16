@@ -432,7 +432,7 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab, onNa
         </Accordion>
         )}
 
-        {/* Sent Alerts Dashboard - Same level as KPI Monitoring */}
+        {/* Alerts Dashboard - Same level as KPI Monitoring */}
         {!searchQuery && (
           <div className="mt-6">
             <button
@@ -440,7 +440,7 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab, onNa
               className="w-full text-left mb-4"
             >
               <h2 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide">
-                📊 Sent Alerts Dashboard
+                📊 Alerts Dashboard
               </h2>
             </button>
           </div>
