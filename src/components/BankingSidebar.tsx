@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, AlertTriangle, Plus, Star, Building2, Shield, Headphones, Zap, Calculator, FileText, ChevronDown, Search, MoreHorizontal, Edit3, Trash2 } from "lucide-react";
+import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, AlertTriangle, Plus, Star, Building2, Shield, Headphones, Zap, Calculator, FileText, ChevronDown, Search, MoreHorizontal, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
@@ -210,12 +210,6 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
       setKpiToDelete(null);
     }
   };
-
-  const handleEditKpi = (kpi: any) => {
-    // TODO: Implement edit functionality
-    console.log("Edit KPI:", kpi);
-    setOpenMenuKpiId(null);
-  };
   
 
   const renderKpiItem = (kpi: any) => {
@@ -283,27 +277,18 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
             </button>
           </PopoverTrigger>
           <PopoverContent 
-            className="w-40 p-2" 
+            className="w-32 p-1" 
             side="right" 
             align="start"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="space-y-1">
-              <button
-                onClick={() => handleEditKpi(kpi)}
-                className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
-              >
-                <Edit3 className="w-3 h-3" />
-                Edit KPI
-              </button>
-              <button
-                onClick={() => handleDeleteKpi(kpi)}
-                className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors"
-              >
-                <Trash2 className="w-3 h-3" />
-                Delete KPI
-              </button>
-            </div>
+            <button
+              onClick={() => handleDeleteKpi(kpi)}
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors"
+            >
+              <Trash2 className="w-3 h-3" />
+              Delete KPI
+            </button>
           </PopoverContent>
         </Popover>
       </div>
