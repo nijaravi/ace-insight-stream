@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, AlertTriangle, Plus, Star, Building2, Shield, Headphones, Zap, Calculator, FileText, ChevronDown, Search, MoreHorizontal, Trash2 } from "lucide-react";
+import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, AlertTriangle, Plus, Star, Building2, Shield, Headphones, Zap, Calculator, FileText, ChevronDown, Search, MoreHorizontal, Trash2, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
@@ -78,9 +78,10 @@ interface BankingSidebarProps {
   selectedKpi: KpiData | null;
   onKpiSelect: (kpi: KpiData) => void;
   onNavigateToTab?: (tabId: string) => void;
+  onNavigateToDashboard?: () => void;
 }
 
-export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: BankingSidebarProps) {
+export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab, onNavigateToDashboard }: BankingSidebarProps) {
   const [toggleFavorites, setToggleFavorites] = useState(false);
   const [categories, setCategories] = useState(initialKpiCategories);
   const [isAddKpiModalOpen, setIsAddKpiModalOpen] = useState(false);
@@ -429,6 +430,21 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
             </AccordionItem>
           ))}
         </Accordion>
+        )}
+
+        {/* Global Navigation - Outside KPI Monitoring */}
+        {!searchQuery && (
+          <div className="mt-4 pt-4 border-t border-banking-border/20">
+            <button
+              onClick={onNavigateToDashboard}
+              className="w-full flex items-center gap-3 p-3 rounded-lg text-banking-sidebar-foreground hover:text-banking-sidebar-accent hover:bg-banking-sidebar-accent/10 transition-colors"
+            >
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-banking-sidebar-accent/10">
+                <BarChart3 className="w-4 h-4 text-banking-sidebar-accent" />
+              </div>
+              <span className="text-sm font-medium">📊 Sent Alerts Dashboard</span>
+            </button>
+          </div>
         )}
       </div>
 

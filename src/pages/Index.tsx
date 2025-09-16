@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BankingSidebar } from "@/components/BankingSidebar";
 import { MainContent } from "@/components/MainContent";
+import { SentAlertsDashboard } from "@/components/SentAlertsDashboard";
 
 export interface KpiData {
   id: string;
@@ -27,6 +28,7 @@ export interface KpiData {
 const Index = () => {
   const [selectedKpi, setSelectedKpi] = useState<KpiData | null>(null);
   const [activeTab, setActiveTab] = useState("check-send");
+  const [showDashboard, setShowDashboard] = useState(false);
 
   const handleNavigateToTab = (tabId: string) => {
     setActiveTab(tabId);
@@ -34,6 +36,12 @@ const Index = () => {
 
   const handleKpiSelect = (kpi: KpiData) => {
     setSelectedKpi(kpi);
+    setShowDashboard(false); // Hide dashboard when selecting a KPI
+  };
+
+  const handleNavigateToDashboard = () => {
+    setShowDashboard(true);
+    setSelectedKpi(null); // Clear KPI selection when viewing dashboard
   };
 
   return (
@@ -42,8 +50,13 @@ const Index = () => {
         selectedKpi={selectedKpi} 
         onKpiSelect={handleKpiSelect}
         onNavigateToTab={handleNavigateToTab}
+        onNavigateToDashboard={handleNavigateToDashboard}
       />
-      <MainContent selectedKpi={selectedKpi} activeTab={activeTab} onTabChange={setActiveTab} />
+      {showDashboard ? (
+        <SentAlertsDashboard />
+      ) : (
+        <MainContent selectedKpi={selectedKpi} activeTab={activeTab} onTabChange={setActiveTab} />
+      )}
     </div>
   );
 };
