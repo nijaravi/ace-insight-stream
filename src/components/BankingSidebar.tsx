@@ -437,12 +437,12 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab, onNa
           <div className="mt-4 pt-4 border-t border-banking-border/20">
             <button
               onClick={onNavigateToDashboard}
-              className="w-full flex items-center gap-3 p-3 rounded-lg text-banking-sidebar-foreground hover:text-banking-sidebar-accent hover:bg-banking-sidebar-accent/10 transition-colors"
+              className="w-full py-2 px-3 rounded-lg hover:bg-banking-sidebar-accent/5 transition-colors"
             >
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-banking-sidebar-accent/10">
-                <BarChart3 className="w-4 h-4 text-banking-sidebar-accent" />
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                <span className="text-sm font-medium">📊 Sent Alerts Dashboard</span>
               </div>
-              <span className="text-sm font-medium">📊 Sent Alerts Dashboard</span>
             </button>
           </div>
         )}
