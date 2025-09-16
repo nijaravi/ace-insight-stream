@@ -432,16 +432,16 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab, onNa
         </Accordion>
         )}
 
-        {/* Global Navigation - Outside KPI Monitoring */}
+        {/* Sent Alerts Dashboard - Same level as KPI Monitoring */}
         {!searchQuery && (
-          <div className="mt-4 pt-4 border-t border-banking-border/20">
+          <div className="mt-6">
             <button
               onClick={onNavigateToDashboard}
-              className="w-full py-2 px-3 rounded-lg hover:bg-banking-sidebar-accent/5 transition-colors"
+              className="w-full text-left mb-4"
             >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">📊 Sent Alerts Dashboard</span>
-              </div>
+              <h2 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide">
+                📊 Sent Alerts Dashboard
+              </h2>
             </button>
           </div>
         )}
