@@ -440,7 +440,6 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab, onNa
               className="w-full py-2 px-3 rounded-lg hover:bg-banking-sidebar-accent/5 transition-colors"
             >
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4" />
                 <span className="text-sm font-medium">📊 Sent Alerts Dashboard</span>
               </div>
             </button>
