@@ -57,6 +57,22 @@ export function MainContent({ selectedKpi, activeTab: externalActiveTab, onTabCh
             </TabsTrigger>
           </TabsList>
 
+          {selectedKpi && (
+            <div className="flex items-center justify-between border-b border-banking-border pb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full text-sm text-muted-foreground">
+                <span className="text-xs">📊</span>
+                <span className="font-medium text-foreground">KPI:</span>
+                <span>{selectedKpi.name}</span>
+                {selectedKpi.domain && (
+                  <>
+                    <span className="text-muted-foreground/60">→</span>
+                    <span>{selectedKpi.domain}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
           <TabsContent value="alerts" className="mt-6">
             <CheckSendAlertsPanel selectedKpi={selectedKpi} />
           </TabsContent>
