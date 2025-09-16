@@ -26,7 +26,38 @@ export function MainContent({ selectedKpi, activeTab: externalActiveTab, onTabCh
   return (
     <div className="flex-1 bg-banking-panel p-8">
       <div className="max-w-7xl mx-auto">
-        <Tabs 
+        {/* KPI Context Header */}
+        <div className="mb-8">
+          {selectedKpi ? (
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">📊</span>
+              <div className="flex flex-col">
+                <h1 className="text-2xl font-bold text-primary">
+                  KPI: {selectedKpi.name}
+                </h1>
+                <div className="flex items-center text-sm text-muted-foreground mt-1">
+                  <span className="text-accent font-medium">{selectedKpi.domain}</span>
+                  {selectedKpi.ownerDepartment && (
+                    <>
+                      <span className="mx-2">→</span>
+                      <span>{selectedKpi.ownerDepartment}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">📊</span>
+              <h1 className="text-2xl font-bold text-muted-foreground">
+                Select a KPI to get started
+              </h1>
+            </div>
+          )}
+          <div className="border-b border-banking-border mt-4"></div>
+        </div>
+
+        <Tabs
           value={tabValue} 
           onValueChange={(value) => {
             const tabId = value === "alerts" ? "check-send" : 
