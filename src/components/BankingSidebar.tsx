@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, AlertTriangle, Plus, Star, Building2, Shield, Headphones, Zap, Calculator, FileText, ChevronDown, Search } from "lucide-react";
+import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, AlertTriangle, Plus, Star, Building2, Shield, Headphones, Zap, Calculator, FileText, ChevronDown, Search, MoreHorizontal, Edit3, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AddKpiModal } from "./AddKpiModal";
 import { AddSectionModal } from "./AddSectionModal";
 import { KpiData } from "@/pages/Index";
@@ -85,28 +88,36 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
   const [selectedSectionForKpi, setSelectedSectionForKpi] = useState<string | null>(null);
   const [newlyAddedKpi, setNewlyAddedKpi] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [openMenuKpiId, setOpenMenuKpiId] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [kpiToDelete, setKpiToDelete] = useState<any>(null);
+  const [deletedKpis, setDeletedKpis] = useState<Set<string>>(new Set());
   
   const favoriteKpis = categories.flatMap(category => 
-    category.kpis.filter(kpi => kpi.isFavorite)
+    category.kpis.filter(kpi => kpi.isFavorite && !deletedKpis.has(kpi.id))
   );
 
-  // Filter KPIs based on search query
+  // Filter KPIs based on search query and exclude deleted KPIs
   const filteredCategories = categories.map(category => ({
     ...category,
     kpis: category.kpis.filter(kpi => 
-      searchQuery === "" || 
-      kpi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      kpi.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      kpi.ownerDepartment.toLowerCase().includes(searchQuery.toLowerCase())
+      !deletedKpis.has(kpi.id) && (
+        searchQuery === "" || 
+        kpi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        kpi.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        kpi.ownerDepartment.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     )
   })).filter(category => category.kpis.length > 0 || searchQuery === "");
 
-  // Get all matching KPIs for search results
+  // Get all matching KPIs for search results (exclude deleted)
   const searchResults = searchQuery ? categories.flatMap(category => 
     category.kpis.filter(kpi => 
-      kpi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      kpi.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      kpi.ownerDepartment.toLowerCase().includes(searchQuery.toLowerCase())
+      !deletedKpis.has(kpi.id) && (
+        kpi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        kpi.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        kpi.ownerDepartment.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     )
   ) : [];
 
@@ -178,15 +189,34 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
     setSelectedSectionForKpi(sectionId);
     setIsAddKpiModalOpen(true);
   };
-  
-  const getStatusDot = (status: string) => {
-    const colors = {
-      critical: "bg-red-400",
-      warning: "bg-yellow-400", 
-      normal: "bg-green-400"
-    };
-    return colors[status as keyof typeof colors] || colors.normal;
+
+  const handleDeleteKpi = (kpi: any) => {
+    setKpiToDelete(kpi);
+    setDeleteConfirmOpen(true);
+    setOpenMenuKpiId(null);
   };
+
+  const confirmDeleteKpi = () => {
+    if (kpiToDelete) {
+      // Soft delete - add to deleted set
+      setDeletedKpis(prev => new Set([...prev, kpiToDelete.id]));
+      
+      // If the deleted KPI was selected, clear selection
+      if (selectedKpi?.id === kpiToDelete.id) {
+        onKpiSelect(null as any);
+      }
+      
+      setDeleteConfirmOpen(false);
+      setKpiToDelete(null);
+    }
+  };
+
+  const handleEditKpi = (kpi: any) => {
+    // TODO: Implement edit functionality
+    console.log("Edit KPI:", kpi);
+    setOpenMenuKpiId(null);
+  };
+  
 
   const renderKpiItem = (kpi: any) => {
     const Icon = kpi.icon;
@@ -197,8 +227,8 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
       <div
         key={kpi.id}
         className={cn(
-          "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
-          "hover:bg-banking-sidebar-accent/10 group",
+          "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group relative",
+          "hover:bg-banking-sidebar-accent/10",
           isSelected && "bg-banking-sidebar-accent text-white shadow-glow",
           isNewlyAdded && "animate-pulse ring-2 ring-banking-sidebar-accent/50"
         )}
@@ -233,10 +263,49 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
           />
         </button>
         
-        <div className={cn(
-          "w-2 h-2 rounded-full",
-          getStatusDot(kpi.status)
-        )} />
+        {/* 3-dot Menu */}
+        <Popover open={openMenuKpiId === kpi.id} onOpenChange={(open) => {
+          if (!open) setOpenMenuKpiId(null);
+        }}>
+          <PopoverTrigger asChild>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenMenuKpiId(openMenuKpiId === kpi.id ? null : kpi.id);
+              }}
+              className={cn(
+                "p-1 rounded-md transition-colors opacity-0 group-hover:opacity-100",
+                "hover:bg-white/10",
+                openMenuKpiId === kpi.id && "opacity-100"
+              )}
+            >
+              <MoreHorizontal className="w-3 h-3" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent 
+            className="w-40 p-2" 
+            side="right" 
+            align="start"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="space-y-1">
+              <button
+                onClick={() => handleEditKpi(kpi)}
+                className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+              >
+                <Edit3 className="w-3 h-3" />
+                Edit KPI
+              </button>
+              <button
+                onClick={() => handleDeleteKpi(kpi)}
+                className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors"
+              >
+                <Trash2 className="w-3 h-3" />
+                Delete KPI
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
     );
   };
@@ -388,6 +457,46 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
         onClose={() => setIsAddSectionModalOpen(false)}
         onAddSection={handleAddSection}
       />
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete KPI</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Are you sure you want to delete this KPI?<br />
+              This action will hide the KPI from the platform but won't delete any associated alerts or history.
+            </DialogDescription>
+          </DialogHeader>
+          {kpiToDelete && (
+            <div className="py-4">
+              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                  {kpiToDelete.icon && <kpiToDelete.icon className="w-4 h-4" />}
+                </div>
+                <div>
+                  <div className="font-medium text-sm">{kpiToDelete.name}</div>
+                  <div className="text-xs text-muted-foreground">{kpiToDelete.ownerDepartment}</div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirmOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteKpi}
+            >
+              Delete KPI
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
