@@ -91,19 +91,15 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
       domain: formData.domain,
       description: formData.description,
       alertTableName: formData.alertTableName,
-      emailDefaults: {
-        to: formData.defaultEmailTo,
-        cc: formData.defaultEmailCC,
-        subject: formData.defaultSubject,
-        body: formData.defaultBody,
-        footer: formData.defaultFooter
-      },
+      defaultEmailTo: formData.defaultEmailTo,
+      defaultEmailCC: formData.defaultEmailCC,
+      defaultSubject: formData.defaultSubject,
+      defaultBody: formData.defaultBody,
+      defaultFooter: formData.defaultFooter,
       isFavorite: formData.isFavorite,
-      advanced: {
-        kpiCode,
-        severityTagging: formData.severityTagging,
-        ownerDepartment: formData.ownerDepartment
-      },
+      identifier: kpiCode,
+      severityTagging: formData.severityTagging,
+      ownerDepartment: formData.ownerDepartment,
       // Default properties
       icon: Plus, // Will be updated based on domain
       severity: "info",
@@ -143,42 +139,45 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
     inputValue: string;
     setInputValue: (value: string) => void;
     placeholder: string;
-  }) => (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-1 mb-2">
-        {emails.map((email) => (
-          <Badge key={email} variant="secondary" className="text-xs">
-            {email}
-            <button
-              type="button"
-              onClick={() => removeEmailTag(type, email)}
-              className="ml-1 hover:text-destructive"
-            >
-              <X className="w-3 h-3" />
-            </button>
-          </Badge>
-        ))}
+  }) => {
+    return (
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-1 mb-2">
+          {emails.map((email) => (
+            <Badge key={email} variant="secondary" className="text-xs">
+              {email}
+              <button
+                type="button"
+                onClick={() => removeEmailTag(type, email)}
+                className="ml-1 hover:text-destructive"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+        <Input
+          key={`${type}-input`}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ',') {
+              e.preventDefault();
+              addEmailTag(type, inputValue);
+            }
+          }}
+          onBlur={() => {
+            if (inputValue.trim()) {
+              addEmailTag(type, inputValue);
+            }
+          }}
+          placeholder={placeholder}
+          className="text-sm"
+        />
+        <p className="text-xs text-muted-foreground">Press Enter or comma to add email</p>
       </div>
-      <Input
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ',') {
-            e.preventDefault();
-            addEmailTag(type, inputValue);
-          }
-        }}
-        onBlur={() => {
-          if (inputValue.trim()) {
-            addEmailTag(type, inputValue);
-          }
-        }}
-        placeholder={placeholder}
-        className="text-sm"
-      />
-      <p className="text-xs text-muted-foreground">Press Enter or comma to add email</p>
-    </div>
-  );
+    );
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
