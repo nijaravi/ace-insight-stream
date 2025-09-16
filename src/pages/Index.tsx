@@ -20,6 +20,8 @@ export interface KpiData {
   icon?: any;
   severity?: string;
   status?: string;
+  isAutomationEnabled?: boolean;
+  automationTime?: string;
 }
 
 const Index = () => {

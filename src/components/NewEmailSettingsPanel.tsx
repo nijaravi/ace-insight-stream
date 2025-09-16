@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { Edit, Save, X } from "lucide-react";
+import { Edit, Save, X, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 
 import { KpiData } from "@/pages/Index";
@@ -22,6 +24,8 @@ export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProp
   const [subject, setSubject] = useState(selectedKpi?.defaultSubject || "");
   const [emailBody, setEmailBody] = useState(selectedKpi?.defaultBody || "");
   const [footerMessage, setFooterMessage] = useState(selectedKpi?.defaultFooter || "");
+  const [isAutomationEnabled, setIsAutomationEnabled] = useState(selectedKpi?.isAutomationEnabled || false);
+  const [automationTime, setAutomationTime] = useState(selectedKpi?.automationTime || "09:00");
   
   // Draft values for editing
   const [draftToRecipients, setDraftToRecipients] = useState<string[]>([]);
@@ -29,6 +33,8 @@ export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProp
   const [draftSubject, setDraftSubject] = useState("");
   const [draftEmailBody, setDraftEmailBody] = useState("");
   const [draftFooterMessage, setDraftFooterMessage] = useState("");
+  const [draftIsAutomationEnabled, setDraftIsAutomationEnabled] = useState(false);
+  const [draftAutomationTime, setDraftAutomationTime] = useState("09:00");
   const [toInput, setToInput] = useState("");
   const [ccInput, setCcInput] = useState("");
 
@@ -40,6 +46,8 @@ export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProp
       setSubject(selectedKpi.defaultSubject || "");
       setEmailBody(selectedKpi.defaultBody || "");
       setFooterMessage(selectedKpi.defaultFooter || "");
+      setIsAutomationEnabled(selectedKpi.isAutomationEnabled || false);
+      setAutomationTime(selectedKpi.automationTime || "09:00");
     }
   }, [selectedKpi]);
 
@@ -51,6 +59,8 @@ export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProp
     setDraftSubject(subject);
     setDraftEmailBody(emailBody);
     setDraftFooterMessage(footerMessage);
+    setDraftIsAutomationEnabled(isAutomationEnabled);
+    setDraftAutomationTime(automationTime);
     setToInput("");
     setCcInput("");
   };
@@ -62,6 +72,8 @@ export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProp
     setSubject(draftSubject);
     setEmailBody(draftEmailBody);
     setFooterMessage(draftFooterMessage);
+    setIsAutomationEnabled(draftIsAutomationEnabled);
+    setAutomationTime(draftAutomationTime);
     setIsEditing(false);
     toast.success("Email settings saved successfully");
   };
@@ -74,6 +86,8 @@ export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProp
     setDraftSubject("");
     setDraftEmailBody("");
     setDraftFooterMessage("");
+    setDraftIsAutomationEnabled(false);
+    setDraftAutomationTime("09:00");
     setToInput("");
     setCcInput("");
   };
@@ -275,6 +289,54 @@ export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProp
               {footerMessage || <span className="text-muted-foreground">No footer message configured</span>}
             </div>
           )}
+        </div>
+
+        {/* Automated Alert Trigger Section */}
+        <div className="border-t border-dashed border-border pt-6">
+          <Collapsible defaultOpen>
+            <CollapsibleTrigger className="flex items-center gap-2 text-lg font-semibold text-primary hover:text-primary/80 transition-colors">
+              <Clock className="w-5 h-5" />
+              🕒 Automated Alert Trigger
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-4 space-y-4">
+              <div className="bg-muted/30 border border-dashed border-muted-foreground/20 rounded-lg p-4 space-y-4">
+                {/* Enable Toggle */}
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Enable daily auto-send for this KPI</Label>
+                  {isEditing ? (
+                    <Switch
+                      checked={draftIsAutomationEnabled}
+                      onCheckedChange={setDraftIsAutomationEnabled}
+                    />
+                  ) : (
+                    <Switch
+                      checked={isAutomationEnabled}
+                      disabled
+                    />
+                  )}
+                </div>
+
+                {/* Time Picker */}
+                {(isEditing ? draftIsAutomationEnabled : isAutomationEnabled) && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Trigger Time (24-hour format)</Label>
+                    {isEditing ? (
+                      <Input
+                        type="time"
+                        value={draftAutomationTime}
+                        onChange={(e) => setDraftAutomationTime(e.target.value)}
+                        className="w-32"
+                      />
+                    ) : (
+                      <div className="p-2 border border-input rounded-md bg-muted/50 font-mono text-sm w-32">
+                        {automationTime}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </div>
     </div>

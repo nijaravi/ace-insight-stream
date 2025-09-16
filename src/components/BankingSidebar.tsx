@@ -239,7 +239,12 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
           </div>
           
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-sm leading-tight">{kpi.name}</div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm leading-tight">{kpi.name}</span>
+              {kpi.isAutomationEnabled && (
+                <Clock className="w-3 h-3 text-banking-sidebar-accent opacity-70" />
+              )}
+            </div>
           </div>
         </button>
 
