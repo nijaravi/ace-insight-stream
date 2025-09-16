@@ -2,15 +2,14 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { CalendarIcon, Search, Download, Eye, RefreshCw, Filter, X } from "lucide-react";
+import { CalendarIcon, Search, Eye, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
 
@@ -99,9 +98,6 @@ export function SentAlertsDashboard() {
   });
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedKpi, setSelectedKpi] = useState<string>("");
-  const [triggeredBy, setTriggeredBy] = useState<string>("all");
-  const [recipientSearch, setRecipientSearch] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAlert, setSelectedAlert] = useState<SentAlert | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -113,16 +109,8 @@ export function SentAlertsDashboard() {
     const matchesDateRange = alert.alertDate >= dateRange.from && alert.alertDate <= dateRange.to;
     const matchesDepartment = selectedDepartments.length === 0 || selectedDepartments.includes(alert.department);
     const matchesKpi = !selectedKpi || alert.kpiName.toLowerCase().includes(selectedKpi.toLowerCase());
-    const matchesTriggeredBy = triggeredBy === "all" || alert.triggeredBy.toLowerCase() === triggeredBy.toLowerCase();
-    const matchesRecipient = !recipientSearch || alert.recipients.some(email => 
-      email.toLowerCase().includes(recipientSearch.toLowerCase())
-    );
-    const matchesSearch = !searchQuery || 
-      alert.alertSummary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      alert.kpiName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      alert.department.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesDateRange && matchesDepartment && matchesKpi && matchesTriggeredBy && matchesRecipient && matchesSearch;
+    return matchesDateRange && matchesDepartment && matchesKpi;
   });
 
   // Pagination
@@ -139,50 +127,9 @@ export function SentAlertsDashboard() {
     }
   };
 
-  const clearAllFilters = () => {
-    setSelectedDepartments([]);
-    setSelectedKpi("");
-    setTriggeredBy("all");
-    setRecipientSearch("");
-    setSearchQuery("");
-    setDateRange({
-      from: subDays(new Date(), 7),
-      to: new Date()
-    });
-    setCurrentPage(1);
-  };
-
-  const exportToCsv = () => {
-    const csvContent = [
-      ["Date", "Department", "KPI Name", "Alert Summary", "Recipients", "Triggered By", "Comments"],
-      ...filteredAlerts.map(alert => [
-        format(alert.alertDate, "yyyy-MM-dd HH:mm"),
-        alert.department,
-        alert.kpiName,
-        alert.alertSummary,
-        alert.recipients.join("; "),
-        alert.triggeredBy,
-        alert.comments || ""
-      ])
-    ].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `sent_alerts_${format(new Date(), "yyyy-MM-dd")}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
-
   const handleViewAlert = (alert: SentAlert) => {
     setSelectedAlert(alert);
     setIsViewDialogOpen(true);
-  };
-
-  const handleResendAlert = (alert: SentAlert) => {
-    console.log("Resending alert:", alert.id);
-    // TODO: Implement resend functionality
   };
 
   return (
@@ -203,29 +150,26 @@ export function SentAlertsDashboard() {
           <CardTitle className="flex items-center gap-2 text-lg">
             <Filter className="w-4 h-4" />
             Filters
-            {(selectedDepartments.length > 0 || selectedKpi || triggeredBy !== "all" || recipientSearch || searchQuery) && (
+            {(selectedDepartments.length > 0 || selectedKpi) && (
               <Badge variant="secondary" className="ml-2">
                 {[
                   selectedDepartments.length > 0 ? 1 : 0,
-                  selectedKpi ? 1 : 0,
-                  triggeredBy !== "all" ? 1 : 0,
-                  recipientSearch ? 1 : 0,
-                  searchQuery ? 1 : 0
+                  selectedKpi ? 1 : 0
                 ].reduce((a, b) => a + b, 0)} applied
               </Badge>
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 p-4">
-          {/* Row 1: Date Range, Department, KPI */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <CardContent className="p-4">
+          {/* Single Row: Date Range, Department, KPI */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Date Range */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Date Range</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">Date Range</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal h-8 text-sm">
-                    <CalendarIcon className="mr-2 h-3 w-3" />
+                  <Button variant="outline" className="w-full justify-start text-left font-normal">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateRange.from ? (
                       dateRange.to ? (
                         <>
@@ -258,11 +202,11 @@ export function SentAlertsDashboard() {
             </div>
 
             {/* Department Filter */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Department</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">Department</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start h-8 text-sm">
+                  <Button variant="outline" className="w-full justify-start">
                     {selectedDepartments.length === 0 
                       ? "All Departments" 
                       : selectedDepartments.length === 1 
@@ -291,66 +235,13 @@ export function SentAlertsDashboard() {
             </div>
 
             {/* KPI Filter */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">KPI</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">KPI Name</label>
               <Input
                 placeholder="Search KPI name..."
                 value={selectedKpi}
                 onChange={(e) => setSelectedKpi(e.target.value)}
-                className="h-8 text-sm"
               />
-            </div>
-          </div>
-
-          {/* Row 2: Triggered By, Email, Keywords, Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
-            {/* Triggered By */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Triggered By</label>
-              <Select value={triggeredBy} onValueChange={setTriggeredBy}>
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="manual">Manual</SelectItem>
-                  <SelectItem value="automated">Automated</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Recipient Search */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Email</label>
-              <Input
-                placeholder="Search by email..."
-                value={recipientSearch}
-                onChange={(e) => setRecipientSearch(e.target.value)}
-                className="h-8 text-sm"
-              />
-            </div>
-
-            {/* Search Keywords */}
-            <div className="space-y-1 lg:col-span-2">
-              <label className="text-xs font-medium text-muted-foreground">Keywords</label>
-              <Input
-                placeholder="Search alerts, KPIs, departments..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8 text-sm"
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2 lg:col-span-2 lg:justify-end">
-              <Button variant="outline" onClick={clearAllFilters} size="sm" className="h-8">
-                <X className="w-3 h-3 mr-1" />
-                Clear
-              </Button>
-              <Button onClick={exportToCsv} size="sm" className="h-8">
-                <Download className="w-3 h-3 mr-1" />
-                Export CSV
-              </Button>
             </div>
           </div>
         </CardContent>
@@ -379,70 +270,35 @@ export function SentAlertsDashboard() {
                       <TableHead>Date</TableHead>
                       <TableHead>Department</TableHead>
                       <TableHead>KPI Name</TableHead>
-                      <TableHead>Alert Summary</TableHead>
-                      <TableHead>Recipients</TableHead>
-                      <TableHead>Triggered By</TableHead>
-                      <TableHead>Comments</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>Alert Detail</TableHead>
+                      <TableHead className="w-20">View</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {paginatedAlerts.map((alert) => (
                       <TableRow key={alert.id} className="hover:bg-muted/50">
-                         <TableCell className="font-mono text-sm py-4">
+                         <TableCell className="font-mono text-sm">
                            {format(alert.alertDate, "MMM dd, HH:mm")}
                          </TableCell>
-                         <TableCell className="py-4">
+                         <TableCell>
                            <Badge variant="outline">{alert.department}</Badge>
                          </TableCell>
-                         <TableCell className="font-medium py-4">{alert.kpiName}</TableCell>
-                         <TableCell className="max-w-xs truncate py-4">
+                         <TableCell className="font-medium">{alert.kpiName}</TableCell>
+                         <TableCell className="max-w-md">
                            {alert.alertSummary}
                          </TableCell>
-                         <TableCell className="py-4">
-                           <div className="space-y-1">
-                             {alert.recipients.slice(0, 2).map((email, idx) => (
-                               <div key={idx} className="text-sm font-mono">
-                                 {email}
-                               </div>
-                             ))}
-                             {alert.recipients.length > 2 && (
-                               <div className="text-xs text-muted-foreground">
-                                 +{alert.recipients.length - 2} more
-                               </div>
-                             )}
-                           </div>
+                         <TableCell className="text-center">
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => handleViewAlert(alert)}
+                             className="h-8 w-8 p-0"
+                           >
+                             <Eye className="h-4 w-4" />
+                           </Button>
                          </TableCell>
-                         <TableCell className="py-4">
-                           <Badge variant={alert.triggeredBy === "Automated" ? "default" : "secondary"}>
-                             {alert.triggeredBy}
-                           </Badge>
-                         </TableCell>
-                         <TableCell className="max-w-xs truncate py-4">
-                           {alert.comments || "-"}
-                         </TableCell>
-                         <TableCell className="py-4">
-                          <div className="flex items-center gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleViewAlert(alert)}
-                            >
-                              <Eye className="w-3 h-3 mr-1" />
-                              View
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleResendAlert(alert)}
-                            >
-                              <RefreshCw className="w-3 h-3 mr-1" />
-                              Resend
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                       </TableRow>
+                     ))}
                   </TableBody>
                 </Table>
               </div>
@@ -541,12 +397,6 @@ export function SentAlertsDashboard() {
             <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
               Close
             </Button>
-            {selectedAlert && (
-              <Button onClick={() => handleResendAlert(selectedAlert)}>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Resend Alert
-              </Button>
-            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
