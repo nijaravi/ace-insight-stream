@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, RefreshCw, Send, Mail, Edit3, CalendarIcon } from "lucide-react";
+import { Calendar, RefreshCw, Send, Mail, Edit3, CalendarIcon, Brain } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,15 +22,17 @@ interface Alert {
   id: string;
   alertDate: string;
   alertDetails: string;
+  comment?: string;
 }
 
 import { KpiData } from "@/pages/Index";
 
 interface CheckSendAlertsPanelProps {
   selectedKpi: KpiData | null;
+  onPassToAI: (alerts: Alert[]) => void;
 }
 
-export function CheckSendAlertsPanel({ selectedKpi }: CheckSendAlertsPanelProps) {
+export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlertsPanelProps) {
   const [tableName, setTableName] = useState(selectedKpi?.alertTableName || "ace_alerts.branch_wait_time_alerts");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -115,6 +117,16 @@ export function CheckSendAlertsPanel({ selectedKpi }: CheckSendAlertsPanelProps)
 
   const getKpiName = (kpi: KpiData | null) => {
     return kpi?.name || "Unknown KPI";
+  };
+
+  const handlePassToAI = () => {
+    const selectedAlertsList = alerts
+      .filter(alert => selectedAlerts.has(alert.id))
+      .map(alert => ({
+        ...alert,
+        comment: comments[alert.id]
+      }));
+    onPassToAI(selectedAlertsList);
   };
 
   return (
@@ -264,9 +276,10 @@ export function CheckSendAlertsPanel({ selectedKpi }: CheckSendAlertsPanelProps)
             <Button 
               className="gap-2 bg-accent hover:bg-accent/90" 
               disabled={selectedAlerts.size === 0}
+              onClick={handlePassToAI}
             >
-              <Send className="w-4 h-4" />
-              Send Selected Alerts
+              <Brain className="w-4 h-4" />
+              Pass to AI Summarizer
             </Button>
           </div>
         </div>
