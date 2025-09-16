@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, AlertTriangle, Plus, Star, Building2, Shield, Headphones, Zap, Calculator, FileText, ChevronDown } from "lucide-react";
+import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, AlertTriangle, Plus, Star, Building2, Shield, Headphones, Zap, Calculator, FileText, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Input } from "@/components/ui/input";
 import { AddKpiModal } from "./AddKpiModal";
 import { AddSectionModal } from "./AddSectionModal";
 import { KpiData } from "@/pages/Index";
@@ -83,10 +84,31 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
   const [isAddSectionModalOpen, setIsAddSectionModalOpen] = useState(false);
   const [selectedSectionForKpi, setSelectedSectionForKpi] = useState<string | null>(null);
   const [newlyAddedKpi, setNewlyAddedKpi] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
   const favoriteKpis = categories.flatMap(category => 
     category.kpis.filter(kpi => kpi.isFavorite)
   );
+
+  // Filter KPIs based on search query
+  const filteredCategories = categories.map(category => ({
+    ...category,
+    kpis: category.kpis.filter(kpi => 
+      searchQuery === "" || 
+      kpi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      kpi.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      kpi.ownerDepartment.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })).filter(category => category.kpis.length > 0 || searchQuery === "");
+
+  // Get all matching KPIs for search results
+  const searchResults = searchQuery ? categories.flatMap(category => 
+    category.kpis.filter(kpi => 
+      kpi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      kpi.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      kpi.ownerDepartment.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  ) : [];
 
   const toggleFavorite = (kpiId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent KPI selection when clicking star
@@ -236,6 +258,18 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
 
       {/* KPI Navigation */}
       <div className="flex-1 p-4 overflow-y-auto">
+        {/* Search Bar */}
+        <div className="mb-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-banking-sidebar-foreground/40" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search KPIs across departments..."
+              className="pl-10 bg-banking-sidebar-accent/5 border-banking-sidebar-accent/20 text-banking-sidebar-foreground placeholder:text-banking-sidebar-foreground/40"
+            />
+          </div>
+        </div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide">
@@ -273,9 +307,40 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
           </div>
         )}
 
+        {/* Search Results */}
+        {searchQuery && searchResults.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Search className="w-4 h-4 text-banking-sidebar-accent" />
+              <h3 className="text-sm font-medium text-banking-sidebar-foreground/80">
+                Search Results ({searchResults.length})
+              </h3>
+            </div>
+            <div className="space-y-1">
+              {searchResults.map(kpi => (
+                <div key={kpi.id} className="ml-6">
+                  {renderKpiItem(kpi)}
+                  <div className="text-xs text-banking-sidebar-foreground/50 ml-11 mb-2">
+                    in {categories.find(cat => cat.kpis.some(k => k.id === kpi.id))?.name}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* No Search Results */}
+        {searchQuery && searchResults.length === 0 && (
+          <div className="mb-6 text-center py-8">
+            <Search className="w-8 h-8 text-banking-sidebar-foreground/30 mx-auto mb-2" />
+            <p className="text-sm text-banking-sidebar-foreground/60">No KPIs found matching "{searchQuery}"</p>
+          </div>
+        )}
+
         {/* Categories */}
-        <Accordion type="multiple" defaultValue={["operations", "sales"]} className="space-y-2">
-          {categories.map((category) => (
+        {!searchQuery && (
+          <Accordion type="multiple" defaultValue={["operations", "sales"]} className="space-y-2">
+          {filteredCategories.map((category) => (
             <AccordionItem key={category.id} value={category.id} className="border-none">
               <AccordionTrigger className="py-2 px-3 rounded-lg hover:bg-banking-sidebar-accent/5 transition-colors [&[data-state=open]>svg]:rotate-180">
                 <div className="flex items-center gap-2">
@@ -305,6 +370,7 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
             </AccordionItem>
           ))}
         </Accordion>
+        )}
       </div>
 
       <AddKpiModal
