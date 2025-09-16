@@ -199,28 +199,40 @@ export function SentAlertsDashboard() {
 
       {/* Filters Section */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <Filter className="w-4 h-4" />
             Filters
+            {(selectedDepartments.length > 0 || selectedKpi || triggeredBy !== "all" || recipientSearch || searchQuery) && (
+              <Badge variant="secondary" className="ml-2">
+                {[
+                  selectedDepartments.length > 0 ? 1 : 0,
+                  selectedKpi ? 1 : 0,
+                  triggeredBy !== "all" ? 1 : 0,
+                  recipientSearch ? 1 : 0,
+                  searchQuery ? 1 : 0
+                ].reduce((a, b) => a + b, 0)} applied
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <CardContent className="space-y-3 p-4">
+          {/* Row 1: Date Range, Department, KPI */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {/* Date Range */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Date Range</label>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Date Range</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                  <Button variant="outline" className="w-full justify-start text-left font-normal h-8 text-sm">
+                    <CalendarIcon className="mr-2 h-3 w-3" />
                     {dateRange.from ? (
                       dateRange.to ? (
                         <>
-                          {format(dateRange.from, "LLL dd")} - {format(dateRange.to, "LLL dd")}
+                          {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
                         </>
                       ) : (
-                        format(dateRange.from, "LLL dd, y")
+                        format(dateRange.from, "MMM dd, y")
                       )
                     ) : (
                       <span>Pick a date range</span>
@@ -246,11 +258,11 @@ export function SentAlertsDashboard() {
             </div>
 
             {/* Department Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Department</label>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Department</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start h-8 text-sm">
                     {selectedDepartments.length === 0 
                       ? "All Departments" 
                       : selectedDepartments.length === 1 
@@ -279,20 +291,24 @@ export function SentAlertsDashboard() {
             </div>
 
             {/* KPI Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">KPI</label>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">KPI</label>
               <Input
                 placeholder="Search KPI name..."
                 value={selectedKpi}
                 onChange={(e) => setSelectedKpi(e.target.value)}
+                className="h-8 text-sm"
               />
             </div>
+          </div>
 
+          {/* Row 2: Triggered By, Email, Keywords, Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
             {/* Triggered By */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Triggered By</label>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Triggered By</label>
               <Select value={triggeredBy} onValueChange={setTriggeredBy}>
-                <SelectTrigger>
+                <SelectTrigger className="h-8 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -304,31 +320,38 @@ export function SentAlertsDashboard() {
             </div>
 
             {/* Recipient Search */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Recipient</label>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Email</label>
               <Input
                 placeholder="Search by email..."
                 value={recipientSearch}
                 onChange={(e) => setRecipientSearch(e.target.value)}
+                className="h-8 text-sm"
               />
             </div>
-          </div>
 
-          <div className="flex items-center gap-3 pt-2">
-            <Input
-              placeholder="Search alerts, KPIs, departments..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-sm"
-            />
-            <Button variant="outline" onClick={clearAllFilters}>
-              <X className="w-4 h-4 mr-2" />
-              Clear All
-            </Button>
-            <Button onClick={exportToCsv}>
-              <Download className="w-4 h-4 mr-2" />
-              Export CSV
-            </Button>
+            {/* Search Keywords */}
+            <div className="space-y-1 lg:col-span-2">
+              <label className="text-xs font-medium text-muted-foreground">Keywords</label>
+              <Input
+                placeholder="Search alerts, KPIs, departments..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-8 text-sm"
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 lg:col-span-2 lg:justify-end">
+              <Button variant="outline" onClick={clearAllFilters} size="sm" className="h-8">
+                <X className="w-3 h-3 mr-1" />
+                Clear
+              </Button>
+              <Button onClick={exportToCsv} size="sm" className="h-8">
+                <Download className="w-3 h-3 mr-1" />
+                Export CSV
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
