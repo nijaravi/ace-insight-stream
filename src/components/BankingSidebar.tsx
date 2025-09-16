@@ -3,6 +3,7 @@ import { Bell, Activity, Clock, CreditCard, DollarSign, Users, TrendingUp, Alert
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AddKpiModal } from "./AddKpiModal";
+import { AddSectionModal } from "./AddSectionModal";
 import { KpiData } from "@/pages/Index";
 
 const initialKpiCategories = [
@@ -79,6 +80,8 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
   const [toggleFavorites, setToggleFavorites] = useState(false);
   const [categories, setCategories] = useState(initialKpiCategories);
   const [isAddKpiModalOpen, setIsAddKpiModalOpen] = useState(false);
+  const [isAddSectionModalOpen, setIsAddSectionModalOpen] = useState(false);
+  const [selectedSectionForKpi, setSelectedSectionForKpi] = useState<string | null>(null);
   const [newlyAddedKpi, setNewlyAddedKpi] = useState<string | null>(null);
   
   const favoriteKpis = categories.flatMap(category => 
@@ -134,6 +137,24 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
 
     // Clear highlight after animation
     setTimeout(() => setNewlyAddedKpi(null), 3000);
+    
+    // Reset section selection
+    setSelectedSectionForKpi(null);
+  };
+
+  const handleAddSection = (sectionData: any) => {
+    const newSection = {
+      id: sectionData.id,
+      name: sectionData.name,
+      kpis: []
+    };
+    
+    setCategories(prev => [...prev, newSection]);
+  };
+
+  const handleAddKpiToSection = (sectionId: string) => {
+    setSelectedSectionForKpi(sectionId);
+    setIsAddKpiModalOpen(true);
   };
   
   const getStatusDot = (status: string) => {
@@ -216,17 +237,26 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
       {/* KPI Navigation */}
       <div className="flex-1 p-4 overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide">
-            KPI Monitoring
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide">
+              KPI Monitoring
+            </h2>
+            <button 
+              onClick={() => setToggleFavorites(!toggleFavorites)}
+              className={cn(
+                "p-1.5 rounded-md transition-colors",
+                toggleFavorites ? "bg-yellow-400/20 text-yellow-400" : "text-banking-sidebar-foreground/50 hover:text-banking-sidebar-foreground/70"
+              )}
+            >
+              <Star className="w-4 h-4" />
+            </button>
+          </div>
           <button 
-            onClick={() => setToggleFavorites(!toggleFavorites)}
-            className={cn(
-              "p-1.5 rounded-md transition-colors",
-              toggleFavorites ? "bg-yellow-400/20 text-yellow-400" : "text-banking-sidebar-foreground/50 hover:text-banking-sidebar-foreground/70"
-            )}
+            onClick={() => setIsAddSectionModalOpen(true)}
+            className="p-1.5 rounded-md text-banking-sidebar-accent hover:bg-banking-sidebar-accent/10 transition-colors"
+            title="Add Section"
           >
-            <Star className="w-4 h-4" />
+            <Plus className="w-4 h-4" />
           </button>
         </div>
 
@@ -259,6 +289,17 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
               <AccordionContent className="pb-2">
                 <div className="space-y-1 ml-6">
                   {category.kpis.map(renderKpiItem)}
+                  
+                  {/* Add KPI button inside each section */}
+                  <button
+                    onClick={() => handleAddKpiToSection(category.id)}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg text-banking-sidebar-foreground/60 hover:text-banking-sidebar-accent hover:bg-banking-sidebar-accent/5 transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors">
+                      <Plus className="w-4 h-4" />
+                    </div>
+                    <span className="text-sm">Add KPI</span>
+                  </button>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -266,21 +307,20 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab }: Ba
         </Accordion>
       </div>
 
-      {/* Add KPI Button */}
-      <div className="p-4 border-t border-banking-border/20">
-        <button 
-          onClick={() => setIsAddKpiModalOpen(true)}
-          className="w-full flex items-center gap-3 p-3 rounded-lg border border-banking-sidebar-accent/30 text-banking-sidebar-accent hover:bg-banking-sidebar-accent/10 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          <span className="text-sm font-medium">Add KPI</span>
-        </button>
-      </div>
-
       <AddKpiModal
         isOpen={isAddKpiModalOpen}
-        onClose={() => setIsAddKpiModalOpen(false)}
+        onClose={() => {
+          setIsAddKpiModalOpen(false);
+          setSelectedSectionForKpi(null);
+        }}
         onAddKpi={handleAddKpi}
+        preselectedDomain={selectedSectionForKpi}
+      />
+      
+      <AddSectionModal
+        isOpen={isAddSectionModalOpen}
+        onClose={() => setIsAddSectionModalOpen(false)}
+        onAddSection={handleAddSection}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Plus, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,13 @@ interface AddKpiModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddKpi: (kpiData: any) => void;
+  preselectedDomain?: string | null;
 }
 
-export function AddKpiModal({ isOpen, onClose, onAddKpi }: AddKpiModalProps) {
+export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: AddKpiModalProps) {
   const [formData, setFormData] = useState({
     name: "",
-    domain: "",
+    domain: preselectedDomain || "",
     description: "",
     alertTableName: "",
     defaultEmailTo: [] as string[],
@@ -33,6 +34,13 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi }: AddKpiModalProps) {
     severityTagging: true,
     ownerDepartment: ""
   });
+
+  // Update domain when preselectedDomain changes
+  useEffect(() => {
+    if (preselectedDomain) {
+      setFormData(prev => ({ ...prev, domain: preselectedDomain }));
+    }
+  }, [preselectedDomain]);
 
   const [emailToInput, setEmailToInput] = useState("");
   const [emailCCInput, setEmailCCInput] = useState("");
@@ -108,7 +116,7 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi }: AddKpiModalProps) {
     // Reset form
     setFormData({
       name: "",
-      domain: "",
+      domain: preselectedDomain || "",
       description: "",
       alertTableName: "",
       defaultEmailTo: [],
