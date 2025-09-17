@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Calendar, RefreshCw, Send, Mail, Edit3, CalendarIcon, Brain } from "lucide-react";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +34,10 @@ interface CheckSendAlertsPanelProps {
 
 export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlertsPanelProps) {
   const [tableName, setTableName] = useState(selectedKpi?.alertTableName || "ace_alerts.branch_wait_time_alerts");
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: subDays(new Date(), 7),
+    to: new Date()
+  });
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [selectedAlerts, setSelectedAlerts] = useState<Set<string>>(new Set());
   const [comments, setComments] = useState<Record<string, string>>({});
@@ -46,17 +49,17 @@ export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlert
   const mockAlerts: Alert[] = [
     {
       id: "1",
-      alertDate: format(selectedDate, 'yyyy-MM-dd'),
+      alertDate: format(dateRange.to, 'yyyy-MM-dd'),
       alertDetails: "Mall Branch breached wait time SLA (28 mins avg)"
     },
     {
       id: "2", 
-      alertDate: format(selectedDate, 'yyyy-MM-dd'),
+      alertDate: format(dateRange.from, 'yyyy-MM-dd'),
       alertDetails: "Downtown Branch has 22 mins avg wait time"
     },
     {
       id: "3",
-      alertDate: format(selectedDate, 'yyyy-MM-dd'),
+      alertDate: format(new Date(dateRange.from.getTime() + (dateRange.to.getTime() - dateRange.from.getTime()) / 2), 'yyyy-MM-dd'),
       alertDetails: "Airport Branch showing 18 mins wait time"
     }
   ];
@@ -77,11 +80,6 @@ export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlert
     loadAlerts(); // Auto-reload when table name changes
   };
 
-  const handleDateChange = (date: Date | undefined) => {
-    if (date) {
-      setSelectedDate(date);
-    }
-  };
 
   const handleAlertSelect = (alertId: string, checked: boolean) => {
     const newSelected = new Set(selectedAlerts);
@@ -105,10 +103,10 @@ export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlert
     }
   }, [selectedKpi]);
 
-  // Auto-load alerts when date changes
+  // Auto-load alerts when date range changes
   useEffect(() => {
     loadAlerts();
-  }, [selectedDate]);
+  }, [dateRange]);
 
   // Initial load
   useEffect(() => {
@@ -178,29 +176,45 @@ export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlert
           </div>
         </div>
 
-        {/* Date Picker */}
+        {/* Date Range Picker */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-muted-foreground">📅 Date:</span>
+          <span className="text-sm font-medium text-muted-foreground">📅 Date Range:</span>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
                   "w-[240px] justify-start text-left font-normal",
-                  !selectedDate && "text-muted-foreground"
+                  !dateRange.from && "text-muted-foreground"
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                {dateRange.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
+                    </>
+                  ) : (
+                    format(dateRange.from, "MMM dd, y")
+                  )
+                ) : (
+                  <span>Pick a date range</span>
+                )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <CalendarComponent
-                mode="single"
-                selected={selectedDate}
-                onSelect={handleDateChange}
                 initialFocus
-                className={cn("p-3 pointer-events-auto")}
+                mode="range"
+                defaultMonth={dateRange.from}
+                selected={{ from: dateRange.from, to: dateRange.to }}
+                onSelect={(range) => {
+                  if (range?.from && range?.to) {
+                    setDateRange({ from: range.from, to: range.to });
+                  }
+                }}
+                numberOfMonths={2}
+                className="pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
@@ -253,7 +267,9 @@ export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlert
       ) : (
         <div className="bg-card border border-banking-border rounded-lg p-8 text-center shadow-card">
           <Calendar className="w-8 h-8 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">No alerts found for {format(selectedDate, "PPP")}</p>
+          <p className="text-muted-foreground">
+            No alerts found for {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
+          </p>
         </div>
       )}
 

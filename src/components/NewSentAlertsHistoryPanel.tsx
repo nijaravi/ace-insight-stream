@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { Calendar, RefreshCw, Download } from "lucide-react";
+import { Calendar, RefreshCw, Download, CalendarIcon } from "lucide-react";
+import { format, subDays } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -26,12 +29,10 @@ interface NewSentAlertsHistoryPanelProps {
 }
 
 export function NewSentAlertsHistoryPanel({ selectedKpi }: NewSentAlertsHistoryPanelProps) {
-  const [startDate, setStartDate] = useState(() => {
-    const date = new Date();
-    date.setDate(date.getDate() - 7);
-    return date.toISOString().split('T')[0];
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: subDays(new Date(), 7),
+    to: new Date()
   });
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [historyAlerts, setHistoryAlerts] = useState<HistoryAlert[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -84,7 +85,7 @@ export function NewSentAlertsHistoryPanel({ selectedKpi }: NewSentAlertsHistoryP
     const a = document.createElement('a');
     a.setAttribute('hidden', '');
     a.setAttribute('href', url);
-    a.setAttribute('download', `alert_history_${startDate}_to_${endDate}.csv`);
+    a.setAttribute('download', `alert_history_${format(dateRange.from, 'yyyy-MM-dd')}_to_${format(dateRange.to, 'yyyy-MM-dd')}.csv`);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -102,25 +103,48 @@ export function NewSentAlertsHistoryPanel({ selectedKpi }: NewSentAlertsHistoryP
       <div className="bg-card border border-banking-border rounded-lg p-6 space-y-4 shadow-card">
         <h3 className="text-lg font-semibold">📋 Controls</h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
           <div className="space-y-2">
-            <Label htmlFor="startDate">📅 Start Date</Label>
-            <Input
-              id="startDate"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="endDate">📅 End Date</Label>
-            <Input
-              id="endDate"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+            <Label htmlFor="dateRange">📅 Date Range</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !dateRange.from && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "MMM dd, y")
+                    )
+                  ) : (
+                    <span>Pick a date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange.from}
+                  selected={{ from: dateRange.from, to: dateRange.to }}
+                  onSelect={(range) => {
+                    if (range?.from && range?.to) {
+                      setDateRange({ from: range.from, to: range.to });
+                    }
+                  }}
+                  numberOfMonths={2}
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           
           <Button 
@@ -150,7 +174,7 @@ export function NewSentAlertsHistoryPanel({ selectedKpi }: NewSentAlertsHistoryP
           <div className="p-4 border-b border-banking-border">
             <h3 className="text-lg font-semibold">📋 Alert History</h3>
             <p className="text-sm text-muted-foreground">
-              Showing {historyAlerts.length} alerts from {startDate} to {endDate}
+              Showing {historyAlerts.length} alerts from {format(dateRange.from, "MMM dd")} to {format(dateRange.to, "MMM dd")}
             </p>
           </div>
           
