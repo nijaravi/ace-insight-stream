@@ -14,29 +14,29 @@ interface EmailSettingsModalProps {
   kpi: {
     id: string;
     name: string;
-    defaultEmailTo: string[];
-    defaultEmailCC: string[];
-    defaultSubject: string;
-    defaultBody: string;
-    defaultFooter: string;
+    default_email_to: string[];
+    default_email_cc: string[];
+    default_subject: string;
+    default_body: string;
+    default_footer: string;
   };
   onSave: (updates: Partial<{
-    defaultEmailTo: string[];
-    defaultEmailCC: string[];
-    defaultSubject: string;
-    defaultBody: string;
-    defaultFooter: string;
+    default_email_to: string[];
+    default_email_cc: string[];
+    default_subject: string;
+    default_body: string;
+    default_footer: string;
   }>) => void;
 }
 
 export function EmailSettingsModal({ open, onOpenChange, kpi, onSave }: EmailSettingsModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    emailTo: kpi.defaultEmailTo,
-    emailCC: kpi.defaultEmailCC,
-    subject: kpi.defaultSubject,
-    body: kpi.defaultBody,
-    footer: kpi.defaultFooter,
+    emailTo: kpi.default_email_to,
+    emailCC: kpi.default_email_cc,
+    subject: kpi.default_subject,
+    body: kpi.default_body,
+    footer: kpi.default_footer,
   });
   const [newToEmail, setNewToEmail] = useState("");
   const [newCCEmail, setNewCCEmail] = useState("");
@@ -44,22 +44,22 @@ export function EmailSettingsModal({ open, onOpenChange, kpi, onSave }: EmailSet
 
   const handleEdit = () => {
     setFormData({
-      emailTo: kpi.defaultEmailTo,
-      emailCC: kpi.defaultEmailCC,
-      subject: kpi.defaultSubject,
-      body: kpi.defaultBody,
-      footer: kpi.defaultFooter,
+      emailTo: kpi.default_email_to,
+      emailCC: kpi.default_email_cc,
+      subject: kpi.default_subject,
+      body: kpi.default_body,
+      footer: kpi.default_footer,
     });
     setIsEditing(true);
   };
 
   const handleSave = () => {
     onSave({
-      defaultEmailTo: formData.emailTo,
-      defaultEmailCC: formData.emailCC,
-      defaultSubject: formData.subject,
-      defaultBody: formData.body,
-      defaultFooter: formData.footer,
+      default_email_to: formData.emailTo,
+      default_email_cc: formData.emailCC,
+      default_subject: formData.subject,
+      default_body: formData.body,
+      default_footer: formData.footer,
     });
     setIsEditing(false);
     toast({
@@ -70,11 +70,11 @@ export function EmailSettingsModal({ open, onOpenChange, kpi, onSave }: EmailSet
 
   const handleCancel = () => {
     setFormData({
-      emailTo: kpi.defaultEmailTo,
-      emailCC: kpi.defaultEmailCC,
-      subject: kpi.defaultSubject,
-      body: kpi.defaultBody,
-      footer: kpi.defaultFooter,
+      emailTo: kpi.default_email_to,
+      emailCC: kpi.default_email_cc,
+      subject: kpi.default_subject,
+      body: kpi.default_body,
+      footer: kpi.default_footer,
     });
     setIsEditing(false);
   };
@@ -174,8 +174,8 @@ export function EmailSettingsModal({ open, onOpenChange, kpi, onSave }: EmailSet
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {kpi.defaultEmailTo.length > 0 ? (
-                    kpi.defaultEmailTo.map((email) => (
+                  {kpi.default_email_to.length > 0 ? (
+                    kpi.default_email_to.map((email) => (
                       <Badge key={email} variant="outline">{email}</Badge>
                     ))
                   ) : (
@@ -220,8 +220,8 @@ export function EmailSettingsModal({ open, onOpenChange, kpi, onSave }: EmailSet
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {kpi.defaultEmailCC.length > 0 ? (
-                    kpi.defaultEmailCC.map((email) => (
+                  {kpi.default_email_cc.length > 0 ? (
+                    kpi.default_email_cc.map((email) => (
                       <Badge key={email} variant="outline">{email}</Badge>
                     ))
                   ) : (
@@ -245,7 +245,7 @@ export function EmailSettingsModal({ open, onOpenChange, kpi, onSave }: EmailSet
                 />
               ) : (
                 <div className="bg-muted p-3 rounded">
-                  {kpi.defaultSubject || "No subject configured"}
+                  {kpi.default_subject || "No subject configured"}
                 </div>
               )}
             </div>
@@ -262,7 +262,7 @@ export function EmailSettingsModal({ open, onOpenChange, kpi, onSave }: EmailSet
                 />
               ) : (
                 <div className="bg-muted p-3 rounded whitespace-pre-wrap">
-                  {kpi.defaultBody || "No body template configured"}
+                  {kpi.default_body || "No body template configured"}
                 </div>
               )}
             </div>
@@ -278,7 +278,7 @@ export function EmailSettingsModal({ open, onOpenChange, kpi, onSave }: EmailSet
                 />
               ) : (
                 <div className="bg-muted p-3 rounded">
-                  {kpi.defaultFooter || "No footer configured"}
+                  {kpi.default_footer || "No footer configured"}
                 </div>
               )}
             </div>

@@ -12,14 +12,14 @@ interface AISummarizerModalProps {
   kpi: {
     id: string;
     name: string;
-    aiPrompt?: string;
+    ai_prompt?: string;
   };
-  onSave: (updates: { aiPrompt: string }) => void;
+  onSave: (updates: { ai_prompt: string }) => void;
 }
 
 export function AISummarizerModal({ open, onOpenChange, kpi, onSave }: AISummarizerModalProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editPrompt, setEditPrompt] = useState(kpi.aiPrompt || "");
+  const [editPrompt, setEditPrompt] = useState(kpi.ai_prompt || "");
   const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
 
@@ -33,7 +33,7 @@ Your task is to:
 
 Please format your response in a clear, professional manner suitable for banking executives.`;
 
-  const currentPrompt = kpi.aiPrompt || defaultPrompt;
+  const currentPrompt = kpi.ai_prompt || defaultPrompt;
 
   const handleEdit = () => {
     setEditPrompt(currentPrompt);
@@ -41,7 +41,7 @@ Please format your response in a clear, professional manner suitable for banking
   };
 
   const handleSave = () => {
-    onSave({ aiPrompt: editPrompt });
+    onSave({ ai_prompt: editPrompt });
     setIsEditing(false);
     toast({
       title: "AI Prompt Updated",

@@ -14,7 +14,262 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alert_history: {
+        Row: {
+          alert_id: string | null
+          body: string
+          created_at: string
+          id: string
+          kpi_id: string | null
+          recipient_emails: string[]
+          sent_date: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          alert_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          kpi_id?: string | null
+          recipient_emails: string[]
+          sent_date?: string
+          status?: string
+          subject: string
+        }
+        Update: {
+          alert_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          kpi_id?: string | null
+          recipient_emails?: string[]
+          sent_date?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_history_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_history_kpi_id_fkey"
+            columns: ["kpi_id"]
+            isOneToOne: false
+            referencedRelation: "kpis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alert_recipients: {
+        Row: {
+          alert_id: string | null
+          created_at: string
+          email: string
+          id: string
+          recipient_type: string
+        }
+        Insert: {
+          alert_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          recipient_type: string
+        }
+        Update: {
+          alert_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          recipient_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_recipients_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alerts: {
+        Row: {
+          alert_date: string
+          alert_detail: string
+          alert_id: string
+          comment: string | null
+          created_at: string
+          curated_date: string | null
+          department_id: string | null
+          id: string
+          kpi_id: string | null
+          sent_date: string | null
+          severity: string | null
+          status: string | null
+        }
+        Insert: {
+          alert_date?: string
+          alert_detail: string
+          alert_id: string
+          comment?: string | null
+          created_at?: string
+          curated_date?: string | null
+          department_id?: string | null
+          id?: string
+          kpi_id?: string | null
+          sent_date?: string | null
+          severity?: string | null
+          status?: string | null
+        }
+        Update: {
+          alert_date?: string
+          alert_detail?: string
+          alert_id?: string
+          comment?: string | null
+          created_at?: string
+          curated_date?: string | null
+          department_id?: string | null
+          id?: string
+          kpi_id?: string | null
+          sent_date?: string | null
+          severity?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alerts_kpi_id_fkey"
+            columns: ["kpi_id"]
+            isOneToOne: false
+            referencedRelation: "kpis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      departments: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      kpis: {
+        Row: {
+          ai_prompt: string | null
+          alert_table_name: string
+          automation_time: string | null
+          created_at: string
+          default_body: string
+          default_email_cc: string[]
+          default_email_to: string[]
+          default_footer: string
+          default_subject: string
+          description: string | null
+          domain: string
+          icon: string | null
+          id: string
+          identifier: string | null
+          is_active: boolean
+          is_automation_enabled: boolean
+          is_favorite: boolean
+          name: string
+          owner_department_id: string | null
+          severity: string | null
+          severity_tagging: boolean
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_prompt?: string | null
+          alert_table_name: string
+          automation_time?: string | null
+          created_at?: string
+          default_body?: string
+          default_email_cc?: string[]
+          default_email_to?: string[]
+          default_footer?: string
+          default_subject?: string
+          description?: string | null
+          domain: string
+          icon?: string | null
+          id?: string
+          identifier?: string | null
+          is_active?: boolean
+          is_automation_enabled?: boolean
+          is_favorite?: boolean
+          name: string
+          owner_department_id?: string | null
+          severity?: string | null
+          severity_tagging?: boolean
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_prompt?: string | null
+          alert_table_name?: string
+          automation_time?: string | null
+          created_at?: string
+          default_body?: string
+          default_email_cc?: string[]
+          default_email_to?: string[]
+          default_footer?: string
+          default_subject?: string
+          description?: string | null
+          domain?: string
+          icon?: string | null
+          id?: string
+          identifier?: string | null
+          is_active?: boolean
+          is_automation_enabled?: boolean
+          is_favorite?: boolean
+          name?: string
+          owner_department_id?: string | null
+          severity?: string | null
+          severity_tagging?: boolean
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpis_owner_department_id_fkey"
+            columns: ["owner_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

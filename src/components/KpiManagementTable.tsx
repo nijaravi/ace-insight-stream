@@ -59,16 +59,16 @@ export function KpiManagementTable({
     .filter(kpi => {
       const matchesSearch = kpi.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === "all" || 
-        (statusFilter === "active" && kpi.isActive) || 
-        (statusFilter === "inactive" && !kpi.isActive);
+        (statusFilter === "active" && kpi.is_active) || 
+        (statusFilter === "inactive" && !kpi.is_active);
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
       switch (sortBy) {
         case "lastSent":
-          return (a.lastAlertSent || "").localeCompare(b.lastAlertSent || "");
+          return (a.last_alert_sent || "").localeCompare(b.last_alert_sent || "");
         case "alertCount":
-          return b.alertsThisMonth - a.alertsThisMonth;
+          return b.alerts_this_month - a.alerts_this_month;
         default:
           return a.name.localeCompare(b.name);
       }
@@ -90,7 +90,7 @@ export function KpiManagementTable({
   };
 
   const handleActiveToggle = (kpiId: string, isActive: boolean) => {
-    onKpiUpdate(kpiId, { isActive });
+    onKpiUpdate(kpiId, { is_active: isActive });
   };
 
   return (
@@ -210,11 +210,11 @@ export function KpiManagementTable({
                     </TableCell>
                     
                     <TableCell className="font-mono text-sm">
-                      {kpi.lastAlertSent ? kpi.lastAlertSent : "Never"}
+                      {kpi.last_alert_sent ? kpi.last_alert_sent : "Never"}
                     </TableCell>
                     
                     <TableCell>
-                      <Badge variant="secondary">{kpi.alertsThisMonth}</Badge>
+                      <Badge variant="secondary">{kpi.alerts_this_month}</Badge>
                     </TableCell>
                     
                     <TableCell>
@@ -232,16 +232,16 @@ export function KpiManagementTable({
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Checkbox
-                          checked={kpi.isActive}
+                          checked={kpi.is_active}
                           onCheckedChange={(checked) => 
                             handleActiveToggle(kpi.id, checked as boolean)
                           }
                         />
                         <span className={cn(
                           "text-sm",
-                          kpi.isActive ? "text-green-600" : "text-muted-foreground"
+                          kpi.is_active ? "text-green-600" : "text-muted-foreground"
                         )}>
-                          {kpi.isActive ? "Active" : "Inactive"}
+                          {kpi.is_active ? "Active" : "Inactive"}
                         </span>
                       </div>
                     </TableCell>

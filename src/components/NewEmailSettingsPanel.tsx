@@ -19,13 +19,13 @@ export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProp
   const [isEditing, setIsEditing] = useState(false);
   
   // Current values
-  const [toRecipients, setToRecipients] = useState<string[]>(selectedKpi?.defaultEmailTo || []);
-  const [ccRecipients, setCcRecipients] = useState<string[]>(selectedKpi?.defaultEmailCC || []);
-  const [subject, setSubject] = useState(selectedKpi?.defaultSubject || "");
-  const [emailBody, setEmailBody] = useState(selectedKpi?.defaultBody || "");
-  const [footerMessage, setFooterMessage] = useState(selectedKpi?.defaultFooter || "");
-  const [isAutomationEnabled, setIsAutomationEnabled] = useState(selectedKpi?.isAutomationEnabled || false);
-  const [automationTime, setAutomationTime] = useState(selectedKpi?.automationTime || "09:00");
+  const [toRecipients, setToRecipients] = useState<string[]>(selectedKpi?.default_email_to || []);
+  const [ccRecipients, setCcRecipients] = useState<string[]>(selectedKpi?.default_email_cc || []);
+  const [subject, setSubject] = useState(selectedKpi?.default_subject || "");
+  const [emailBody, setEmailBody] = useState(selectedKpi?.default_body || "");
+  const [footerMessage, setFooterMessage] = useState(selectedKpi?.default_footer || "");
+  const [isAutomationEnabled, setIsAutomationEnabled] = useState(selectedKpi?.is_automation_enabled || false);
+  const [automationTime, setAutomationTime] = useState(selectedKpi?.automation_time || "09:00");
   
   // Draft values for editing
   const [draftToRecipients, setDraftToRecipients] = useState<string[]>([]);
@@ -41,13 +41,13 @@ export function NewEmailSettingsPanel({ selectedKpi }: NewEmailSettingsPanelProp
   // Update form fields when selectedKpi changes
   useEffect(() => {
     if (selectedKpi) {
-      setToRecipients(selectedKpi.defaultEmailTo || []);
-      setCcRecipients(selectedKpi.defaultEmailCC || []);
-      setSubject(selectedKpi.defaultSubject || "");
-      setEmailBody(selectedKpi.defaultBody || "");
-      setFooterMessage(selectedKpi.defaultFooter || "");
-      setIsAutomationEnabled(selectedKpi.isAutomationEnabled || false);
-      setAutomationTime(selectedKpi.automationTime || "09:00");
+      setToRecipients(selectedKpi.default_email_to || []);
+      setCcRecipients(selectedKpi.default_email_cc || []);
+      setSubject(selectedKpi.default_subject || "");
+      setEmailBody(selectedKpi.default_body || "");
+      setFooterMessage(selectedKpi.default_footer || "");
+      setIsAutomationEnabled(selectedKpi.is_automation_enabled || false);
+      setAutomationTime(selectedKpi.automation_time || "09:00");
     }
   }, [selectedKpi]);
 

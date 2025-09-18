@@ -33,7 +33,7 @@ interface CheckSendAlertsPanelProps {
 }
 
 export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlertsPanelProps) {
-  const [tableName, setTableName] = useState(selectedKpi?.alertTableName || "ace_alerts.branch_wait_time_alerts");
+  const [tableName, setTableName] = useState(selectedKpi?.alert_table_name || "ace_alerts.branch_wait_time_alerts");
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: subDays(new Date(), 7),
     to: new Date()
@@ -97,9 +97,9 @@ export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlert
 
   // Update table name when selectedKpi changes
   useEffect(() => {
-    if (selectedKpi?.alertTableName) {
-      setTableName(selectedKpi.alertTableName);
-      setEditTableName(selectedKpi.alertTableName);
+    if (selectedKpi?.alert_table_name) {
+      setTableName(selectedKpi.alert_table_name);
+      setEditTableName(selectedKpi.alert_table_name);
     }
   }, [selectedKpi]);
 
