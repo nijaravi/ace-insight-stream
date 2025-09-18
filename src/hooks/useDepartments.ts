@@ -36,3 +36,24 @@ export const useAddDepartment = () => {
     },
   });
 };
+
+export const useUpdateDepartment = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<Omit<Department, "id" | "created_at" | "updated_at">>) => {
+      const { data, error } = await supabase
+        .from("departments")
+        .update(updates)
+        .eq("id", id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
+    },
+  });
+};

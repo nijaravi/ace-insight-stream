@@ -3,7 +3,7 @@ import { KpiManagementTable } from "@/components/KpiManagementTable";
 import { AlertCurationPanel } from "@/components/AlertCurationPanel"; 
 import { SentAlertsDashboard } from "@/components/SentAlertsDashboard";
 import { BankingSidebar } from "@/components/BankingSidebar";
-import { useDepartments, useAddDepartment } from "@/hooks/useDepartments";
+import { useDepartments, useAddDepartment, useUpdateDepartment } from "@/hooks/useDepartments";
 import { useKpis, useAddKpi, useUpdateKpi } from "@/hooks/useKpis";
 import { toast } from "sonner";
 import type { KpiData } from "@/types/kpi";
@@ -16,6 +16,7 @@ const Index = () => {
   const { data: departments, isLoading: departmentsLoading } = useDepartments();
   const { data: kpis, isLoading: kpisLoading } = useKpis(selectedDepartment || undefined);
   const addDepartmentMutation = useAddDepartment();
+  const updateDepartmentMutation = useUpdateDepartment();
   const addKpiMutation = useAddKpi(); 
   const updateKpiMutation = useUpdateKpi();
 
@@ -46,6 +47,16 @@ const Index = () => {
     } catch (error) {
       toast.error("Failed to add department");
       console.error("Error adding department:", error);
+    }
+  };
+
+  const handleUpdateDepartment = async (id: string, department: { name: string; description?: string; icon: string }) => {
+    try {
+      await updateDepartmentMutation.mutateAsync({ id, ...department });
+      toast.success("Department updated successfully");
+    } catch (error) {
+      toast.error("Failed to update department");
+      console.error("Error updating department:", error);
     }
   };
 
@@ -115,6 +126,7 @@ const Index = () => {
         onDepartmentSelect={setSelectedDepartment}
         onViewSelect={setSelectedView}
         onAddDepartment={handleAddDepartment}
+        onUpdateDepartment={handleUpdateDepartment}
       />
       <div className="flex-1 pl-8 pt-6">
         {renderMainContent()}

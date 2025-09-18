@@ -1,7 +1,9 @@
-import { Bell, Clock, TrendingUp, DollarSign, Shield, Building2, Zap, BarChart3, Plus } from "lucide-react";
+import { Bell, Clock, TrendingUp, DollarSign, Shield, Building2, Zap, BarChart3, Plus, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AddDepartmentModal } from "./AddDepartmentModal";
+import { EditDepartmentModal } from "./EditDepartmentModal";
 import { useState } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Department } from "@/types/kpi";
 
 interface BankingSidebarProps {
@@ -11,6 +13,7 @@ interface BankingSidebarProps {
   onDepartmentSelect: (departmentId: string) => void;
   onViewSelect: (view: "kpi-management" | "alert-curation" | "alerts-dashboard") => void;
   onAddDepartment: (department: { name: string; description?: string; icon: string }) => void;
+  onUpdateDepartment: (id: string, department: { name: string; description?: string; icon: string }) => void;
 }
 
 export function BankingSidebar({ 
@@ -19,13 +22,27 @@ export function BankingSidebar({
   departments,
   onDepartmentSelect, 
   onViewSelect, 
-  onAddDepartment 
+  onAddDepartment,
+  onUpdateDepartment
 }: BankingSidebarProps) {
   const [addDepartmentModalOpen, setAddDepartmentModalOpen] = useState(false);
+  const [editDepartmentModalOpen, setEditDepartmentModalOpen] = useState(false);
+  const [departmentToEdit, setDepartmentToEdit] = useState<Department | null>(null);
 
   const handleAddDepartment = (departmentData: { name: string; description?: string; icon: string }) => {
     onAddDepartment(departmentData);
     setAddDepartmentModalOpen(false);
+  };
+
+  const handleEditDepartment = (department: Department) => {
+    setDepartmentToEdit(department);
+    setEditDepartmentModalOpen(true);
+  };
+
+  const handleUpdateDepartment = (id: string, departmentData: { name: string; description?: string; icon: string }) => {
+    onUpdateDepartment(id, departmentData);
+    setEditDepartmentModalOpen(false);
+    setDepartmentToEdit(null);
   };
 
   return (
@@ -80,26 +97,50 @@ export function BankingSidebar({
               const isSelected = selectedDepartment === department.id && selectedView === "kpi-management";
               
               return (
-                <button
+                <div
                   key={department.id}
-                  onClick={() => {
-                    onDepartmentSelect(department.id);
-                    onViewSelect("kpi-management");
-                  }}
                   className={cn(
-                    "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
+                    "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group",
                     "hover:bg-banking-sidebar-accent/10",
                     isSelected && "bg-banking-sidebar-accent text-white shadow-glow"
                   )}
                 >
-                  <div className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-                    isSelected ? "bg-white/20" : "bg-white/10"
-                  )}>
-                    <span className="text-lg">{department.icon}</span>
-                  </div>
-                  <span className="font-medium text-sm">{department.name}</span>
-                </button>
+                  <button
+                    onClick={() => {
+                      onDepartmentSelect(department.id);
+                      onViewSelect("kpi-management");
+                    }}
+                    className="flex items-center gap-3 flex-1"
+                  >
+                    <div className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                      isSelected ? "bg-white/20" : "bg-white/10"
+                    )}>
+                      <span className="text-lg">{department.icon}</span>
+                    </div>
+                    <span className="font-medium text-sm">{department.name}</span>
+                  </button>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className={cn(
+                          "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md",
+                          "hover:bg-white/10",
+                          isSelected && "text-white hover:bg-white/20"
+                        )}
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => handleEditDepartment(department)}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit Department
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               );
             })}
             
@@ -145,6 +186,13 @@ export function BankingSidebar({
         open={addDepartmentModalOpen}
         onOpenChange={setAddDepartmentModalOpen}
         onAddDepartment={handleAddDepartment}
+      />
+      
+      <EditDepartmentModal
+        open={editDepartmentModalOpen}
+        onOpenChange={setEditDepartmentModalOpen}
+        department={departmentToEdit}
+        onUpdateDepartment={handleUpdateDepartment}
       />
     </div>
   );
