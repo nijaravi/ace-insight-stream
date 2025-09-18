@@ -7,6 +7,7 @@ import { useDepartments, useAddDepartment, useUpdateDepartment } from "@/hooks/u
 import { useKpis, useAddKpi, useUpdateKpi } from "@/hooks/useKpis";
 import { toast } from "sonner";
 import type { KpiData } from "@/types/kpi";
+import adibLogo from "@/assets/adib-logo.png";
 
 const Index = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
@@ -128,8 +129,18 @@ const Index = () => {
         onAddDepartment={handleAddDepartment}
         onUpdateDepartment={handleUpdateDepartment}
       />
-      <div className="flex-1 pl-8 pt-6">
+      <div className="flex-1 pl-8 pt-6 relative">
         {renderMainContent()}
+        
+        {/* Footer */}
+        <div className="fixed bottom-4 right-4 flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 shadow-sm">
+          <span className="text-sm text-muted-foreground">Powered by ACE</span>
+          <img 
+            src={adibLogo} 
+            alt="ADIB Bank Logo" 
+            className="h-6 w-auto"
+          />
+        </div>
       </div>
     </div>
   );
