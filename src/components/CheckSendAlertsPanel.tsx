@@ -25,7 +25,7 @@ interface Alert {
   comment?: string;
 }
 
-import { KpiData } from "@/pages/Index";
+import type { KpiData } from "@/types/kpi";
 
 interface CheckSendAlertsPanelProps {
   selectedKpi: KpiData | null;

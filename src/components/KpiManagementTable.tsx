@@ -26,23 +26,7 @@ import { EmailSettingsModal } from "./EmailSettingsModal";
 import { SentAlertsViewerModal } from "./SentAlertsViewerModal";
 import { AddKpiModal } from "./AddKpiModal";
 
-interface KpiTableData {
-  id: string;
-  name: string;
-  domain: string;
-  description: string;
-  alertTableName: string;
-  defaultEmailTo: string[];
-  defaultEmailCC: string[];
-  defaultSubject: string;
-  defaultBody: string;
-  defaultFooter: string;
-  aiPrompt?: string;
-  lastAlertSent?: string;
-  alertsThisMonth: number;
-  isActive: boolean;
-  ownerDepartment?: string;
-}
+import type { KpiTableData } from "@/types/kpi";
 
 interface KpiManagementTableProps {
   departmentId: string;

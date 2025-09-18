@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 
-import { KpiData } from "@/pages/Index";
+import type { KpiData } from "@/types/kpi";
 
 interface NewEmailSettingsPanelProps {
   selectedKpi: KpiData | null;

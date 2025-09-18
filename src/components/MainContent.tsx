@@ -5,7 +5,7 @@ import { AISummarizerPanel } from "./AISummarizerPanel";
 import { NewEmailSettingsPanel } from "./NewEmailSettingsPanel";
 import { NewSentAlertsHistoryPanel } from "./NewSentAlertsHistoryPanel";
 
-import { KpiData } from "@/pages/Index";
+import type { KpiData } from "@/types/kpi";
 
 interface Alert {
   id: string;

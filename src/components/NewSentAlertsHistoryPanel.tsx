@@ -22,7 +22,7 @@ interface HistoryAlert {
   alertMessage: string;
 }
 
-import { KpiData } from "@/pages/Index";
+import type { KpiData } from "@/types/kpi";
 
 interface NewSentAlertsHistoryPanelProps {
   selectedKpi: KpiData | null;
