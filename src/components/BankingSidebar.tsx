@@ -103,7 +103,7 @@ export function BankingSidebar({
                 <div
                   key={department.id}
                   className={cn(
-                    "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group",
+                    "relative w-full flex items-center justify-between gap-3 p-3 rounded-lg transition-all duration-200 group",
                     "hover:bg-banking-sidebar-accent/10",
                     isSelected && "bg-banking-sidebar-accent text-white shadow-glow"
                   )}
@@ -113,22 +113,22 @@ export function BankingSidebar({
                       onDepartmentSelect(department.id);
                       onViewSelect("kpi-management");
                     }}
-                    className="flex items-center gap-3 flex-1"
+                    className="flex items-center gap-3 flex-1 min-w-0"
                   >
                     <div className={cn(
-                      "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                      "w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0",
                       isSelected ? "bg-white/20" : "bg-white/10"
                     )}>
                       <span className="text-lg">{department.icon}</span>
                     </div>
-                    <span className="font-medium text-sm">{department.name}</span>
+                    <span className="font-medium text-sm truncate">{department.name}</span>
                   </button>
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
                         className={cn(
-                          "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md",
+                          "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md flex-shrink-0",
                           "hover:bg-white/10",
                           isSelected && "text-white hover:bg-white/20"
                         )}
@@ -136,7 +136,11 @@ export function BankingSidebar({
                         <MoreVertical className="w-4 h-4" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent 
+                      align="end" 
+                      className="w-48 bg-background border shadow-md z-50"
+                      sideOffset={5}
+                    >
                       <DropdownMenuItem onClick={() => handleEditDepartment(department)}>
                         <Edit className="w-4 h-4 mr-2" />
                         Edit Department
