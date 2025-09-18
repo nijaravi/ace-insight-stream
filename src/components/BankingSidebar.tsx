@@ -75,231 +75,19 @@ const initialKpiCategories = [
 // Remove unused function since favorites are calculated in component
 
 interface BankingSidebarProps {
-  selectedKpi: KpiData | null;
-  onKpiSelect: (kpi: KpiData) => void;
-  onNavigateToTab?: (tabId: string) => void;
-  onNavigateToDashboard?: () => void;
+  selectedDepartment: string | null;
+  selectedView: "kpi-management" | "alert-curation" | "alerts-dashboard";
+  onDepartmentSelect: (departmentId: string) => void;
+  onViewSelect: (view: "kpi-management" | "alert-curation" | "alerts-dashboard") => void;
 }
 
-export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab, onNavigateToDashboard }: BankingSidebarProps) {
-  const [toggleFavorites, setToggleFavorites] = useState(false);
-  const [categories, setCategories] = useState(initialKpiCategories);
-  const [isAddKpiModalOpen, setIsAddKpiModalOpen] = useState(false);
-  const [isAddSectionModalOpen, setIsAddSectionModalOpen] = useState(false);
-  const [selectedSectionForKpi, setSelectedSectionForKpi] = useState<string | null>(null);
-  const [newlyAddedKpi, setNewlyAddedKpi] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [openMenuKpiId, setOpenMenuKpiId] = useState<string | null>(null);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [kpiToDelete, setKpiToDelete] = useState<any>(null);
-  const [deletedKpis, setDeletedKpis] = useState<Set<string>>(new Set());
-  
-  const favoriteKpis = categories.flatMap(category => 
-    category.kpis.filter(kpi => kpi.isFavorite && !deletedKpis.has(kpi.id))
-  );
-
-  // Filter KPIs based on search query and exclude deleted KPIs
-  const filteredCategories = categories.map(category => ({
-    ...category,
-    kpis: category.kpis.filter(kpi => 
-      !deletedKpis.has(kpi.id) && (
-        searchQuery === "" || 
-        kpi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        kpi.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        kpi.ownerDepartment.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    )
-  })).filter(category => category.kpis.length > 0 || searchQuery === "");
-
-  // Get all matching KPIs for search results (exclude deleted)
-  const searchResults = searchQuery ? categories.flatMap(category => 
-    category.kpis.filter(kpi => 
-      !deletedKpis.has(kpi.id) && (
-        kpi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        kpi.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        kpi.ownerDepartment.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    )
-  ) : [];
-
-  const toggleFavorite = (kpiId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent KPI selection when clicking star
-    
-    setCategories(prev => prev.map(category => ({
-      ...category,
-      kpis: category.kpis.map(kpi => 
-        kpi.id === kpiId ? { ...kpi, isFavorite: !kpi.isFavorite } : kpi
-      )
-    })));
-  };
-
-  const handleAddKpi = (kpiData: any) => {
-    // Find the appropriate category or create default icons based on domain
-    const domainIcons = {
-      operations: Clock,
-      sales: TrendingUp,
-      financial: DollarSign,
-      compliance: Shield
-    };
-
-    const newKpi = {
-      ...kpiData,
-      icon: domainIcons[kpiData.domain as keyof typeof domainIcons] || Activity
-    };
-
-    // Add KPI to the appropriate category
-    setCategories(prev => prev.map(category => {
-      if (category.id === kpiData.domain) {
-        return {
-          ...category,
-          kpis: [...category.kpis, newKpi]
-        };
-      }
-      return category;
-    }));
-
-    // Track newly added KPI for highlighting
-    setNewlyAddedKpi(newKpi.id);
-    
-    // Auto-select the new KPI
-    onKpiSelect(newKpi);
-    
-    // Navigate to Check & Send Alerts tab if callback is provided
-    if (onNavigateToTab) {
-      onNavigateToTab("check-send");
-    }
-
-    // Clear highlight after animation
-    setTimeout(() => setNewlyAddedKpi(null), 3000);
-    
-    // Reset section selection
-    setSelectedSectionForKpi(null);
-  };
-
-  const handleAddSection = (sectionData: any) => {
-    const newSection = {
-      id: sectionData.id,
-      name: sectionData.name,
-      kpis: []
-    };
-    
-    setCategories(prev => [...prev, newSection]);
-  };
-
-  const handleAddKpiToSection = (sectionId: string) => {
-    setSelectedSectionForKpi(sectionId);
-    setIsAddKpiModalOpen(true);
-  };
-
-  const handleDeleteKpi = (kpi: any) => {
-    setKpiToDelete(kpi);
-    setDeleteConfirmOpen(true);
-    setOpenMenuKpiId(null);
-  };
-
-  const confirmDeleteKpi = () => {
-    if (kpiToDelete) {
-      // Soft delete - add to deleted set
-      setDeletedKpis(prev => new Set([...prev, kpiToDelete.id]));
-      
-      // If the deleted KPI was selected, clear selection
-      if (selectedKpi?.id === kpiToDelete.id) {
-        onKpiSelect(null as any);
-      }
-      
-      setDeleteConfirmOpen(false);
-      setKpiToDelete(null);
-    }
-  };
-  
-
-  const renderKpiItem = (kpi: any) => {
-    const Icon = kpi.icon;
-    const isSelected = selectedKpi?.id === kpi.id;
-    const isNewlyAdded = newlyAddedKpi === kpi.id;
-    
-    return (
-      <div
-        key={kpi.id}
-        className={cn(
-          "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group relative",
-          "hover:bg-banking-sidebar-accent/10",
-          isSelected && "bg-banking-sidebar-accent text-white shadow-glow",
-          isNewlyAdded && "animate-pulse ring-2 ring-banking-sidebar-accent/50"
-        )}
-      >
-        <button
-          onClick={() => onKpiSelect(kpi)}
-          className="flex items-center gap-3 flex-1 text-left"
-        >
-          <div className={cn(
-            "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-            isSelected ? "bg-white/20" : "bg-white/10 group-hover:bg-white/15"
-          )}>
-            <Icon className="w-4 h-4" />
-          </div>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm leading-tight">{kpi.name}</span>
-              {kpi.isAutomationEnabled && (
-                <Clock className="w-3 h-3 text-banking-sidebar-accent opacity-70" />
-              )}
-            </div>
-          </div>
-        </button>
-
-        <button
-          onClick={(e) => toggleFavorite(kpi.id, e)}
-          className="p-1 rounded-md hover:bg-white/10 transition-colors"
-        >
-          <Star 
-            className={cn(
-              "w-3 h-3 transition-colors",
-              kpi.isFavorite 
-                ? "fill-yellow-400 text-yellow-400" 
-                : "text-banking-sidebar-foreground/40 hover:text-yellow-400"
-            )} 
-          />
-        </button>
-        
-        {/* 3-dot Menu */}
-        <Popover open={openMenuKpiId === kpi.id} onOpenChange={(open) => {
-          if (!open) setOpenMenuKpiId(null);
-        }}>
-          <PopoverTrigger asChild>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenMenuKpiId(openMenuKpiId === kpi.id ? null : kpi.id);
-              }}
-              className={cn(
-                "p-1 rounded-md transition-colors opacity-0 group-hover:opacity-100",
-                "hover:bg-white/10",
-                openMenuKpiId === kpi.id && "opacity-100"
-              )}
-            >
-              <MoreHorizontal className="w-3 h-3" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent 
-            className="w-32 p-1" 
-            side="right" 
-            align="start"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => handleDeleteKpi(kpi)}
-              className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors"
-            >
-              <Trash2 className="w-3 h-3" />
-              Delete KPI
-            </button>
-          </PopoverContent>
-        </Popover>
-      </div>
-    );
-  };
+export function BankingSidebar({ selectedDepartment, selectedView, onDepartmentSelect, onViewSelect }: BankingSidebarProps) {
+  const departments = [
+    { id: "operations", name: "Operations", icon: Clock },
+    { id: "sales", name: "Sales & Marketing", icon: TrendingUp },
+    { id: "financial", name: "Financial", icon: DollarSign },
+    { id: "compliance", name: "Risk & Compliance", icon: Shield },
+  ];
 
   return (
     <div className="w-80 bg-banking-sidebar text-banking-sidebar-foreground border-r border-banking-border flex flex-col">
@@ -316,20 +104,91 @@ export function BankingSidebar({ selectedKpi, onKpiSelect, onNavigateToTab, onNa
         </div>
       </div>
 
-      {/* KPI Navigation */}
-      <div className="flex-1 p-4 overflow-y-auto">
-        {/* Search Bar */}
-        <div className="mb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-banking-sidebar-foreground/40" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search KPIs across departments..."
-              className="pl-10 bg-banking-sidebar-accent/5 border-banking-sidebar-accent/20 text-banking-sidebar-foreground placeholder:text-banking-sidebar-foreground/40"
-            />
+      {/* Navigation */}
+      <div className="flex-1 p-4 overflow-y-auto space-y-6">
+        {/* KPI Management Section */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide flex items-center gap-2">
+            <Building2 className="w-4 h-4" />
+            KPI Management
+          </h3>
+          <div className="space-y-2">
+            {departments.map((department) => {
+              const Icon = department.icon;
+              const isSelected = selectedDepartment === department.id && selectedView === "kpi-management";
+              
+              return (
+                <button
+                  key={department.id}
+                  onClick={() => {
+                    onDepartmentSelect(department.id);
+                    onViewSelect("kpi-management");
+                  }}
+                  className={cn(
+                    "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
+                    "hover:bg-banking-sidebar-accent/10",
+                    isSelected && "bg-banking-sidebar-accent text-white shadow-glow"
+                  )}
+                >
+                  <div className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                    isSelected ? "bg-white/20" : "bg-white/10"
+                  )}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <span className="font-medium text-sm">{department.name}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
+
+        {/* Alert Curation & Sending Section */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide flex items-center gap-2">
+            <Zap className="w-4 h-4" />
+            Alert Curation & Sending
+          </h3>
+          <button
+            onClick={() => onViewSelect("alert-curation")}
+            className={cn(
+              "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
+              "hover:bg-banking-sidebar-accent/10",
+              selectedView === "alert-curation" && "bg-banking-sidebar-accent text-white shadow-glow"
+            )}
+          >
+            <div className={cn(
+              "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+              selectedView === "alert-curation" ? "bg-white/20" : "bg-white/10"
+            )}>
+              <Bell className="w-4 h-4" />
+            </div>
+            <span className="font-medium text-sm">Manual Alert Curation</span>
+          </button>
+        </div>
+
+        {/* Alerts Dashboard Section */}
+        <div className="space-y-3">
+          <button
+            onClick={() => onViewSelect("alerts-dashboard")}
+            className={cn(
+              "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
+              "hover:bg-banking-sidebar-accent/10",
+              selectedView === "alerts-dashboard" && "bg-banking-sidebar-accent text-white shadow-glow"
+            )}
+          >
+            <div className={cn(
+              "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+              selectedView === "alerts-dashboard" ? "bg-white/20" : "bg-white/10"
+            )}>
+              <BarChart3 className="w-4 h-4" />
+            </div>
+            <span className="font-medium text-sm">Alerts Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide">
