@@ -18,6 +18,61 @@ interface AddKpiModalProps {
   departmentName: string;
 }
 
+const EmailTagInput = ({ 
+  type, 
+  emails, 
+  inputValue, 
+  setInputValue, 
+  placeholder,
+  onAddTag,
+  onRemoveTag
+}: {
+  type: 'to' | 'cc';
+  emails: string[];
+  inputValue: string;
+  setInputValue: (value: string) => void;
+  placeholder: string;
+  onAddTag: (type: 'to' | 'cc', email: string) => void;
+  onRemoveTag: (type: 'to' | 'cc', email: string) => void;
+}) => {
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-1 mb-2">
+        {emails.map((email) => (
+          <Badge key={email} variant="secondary" className="text-xs">
+            {email}
+            <button
+              type="button"
+              onClick={() => onRemoveTag(type, email)}
+              className="ml-1 hover:text-destructive"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </Badge>
+        ))}
+      </div>
+      <Input
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            onAddTag(type, inputValue);
+          }
+        }}
+        onBlur={() => {
+          if (inputValue.trim()) {
+            onAddTag(type, inputValue);
+          }
+        }}
+        placeholder={placeholder}
+        className="text-sm"
+      />
+      <p className="text-xs text-muted-foreground">Press Enter or comma to add email</p>
+    </div>
+  );
+};
+
 export function AddKpiModal({ isOpen, onClose, onAddKpi, departmentId, departmentName }: AddKpiModalProps) {
   const [formData, setFormData] = useState({
     name: "",
@@ -106,58 +161,6 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, departmentId, departmen
     });
   };
 
-  const EmailTagInput = ({ 
-    type, 
-    emails, 
-    inputValue, 
-    setInputValue, 
-    placeholder 
-  }: {
-    type: 'to' | 'cc';
-    emails: string[];
-    inputValue: string;
-    setInputValue: (value: string) => void;
-    placeholder: string;
-  }) => {
-    return (
-      <div className="space-y-2">
-        <div className="flex flex-wrap gap-1 mb-2">
-          {emails.map((email) => (
-            <Badge key={email} variant="secondary" className="text-xs">
-              {email}
-              <button
-                type="button"
-                onClick={() => removeEmailTag(type, email)}
-                className="ml-1 hover:text-destructive"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-        <Input
-          key={`${type}-input`}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ',') {
-              e.preventDefault();
-              addEmailTag(type, inputValue);
-            }
-          }}
-          onBlur={() => {
-            if (inputValue.trim()) {
-              addEmailTag(type, inputValue);
-            }
-          }}
-          placeholder={placeholder}
-          className="text-sm"
-        />
-        <p className="text-xs text-muted-foreground">Press Enter or comma to add email</p>
-      </div>
-    );
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -217,6 +220,8 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, departmentId, departmen
                   inputValue={emailToInput}
                   setInputValue={setEmailToInput}
                   placeholder="Add email addresses"
+                  onAddTag={addEmailTag}
+                  onRemoveTag={removeEmailTag}
                 />
               </div>
 
@@ -228,6 +233,8 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, departmentId, departmen
                   inputValue={emailCCInput}
                   setInputValue={setEmailCCInput}
                   placeholder="Add CC email addresses"
+                  onAddTag={addEmailTag}
+                  onRemoveTag={removeEmailTag}
                 />
               </div>
 
