@@ -2,27 +2,30 @@ import { Bell, Clock, TrendingUp, DollarSign, Shield, Building2, Zap, BarChart3,
 import { cn } from "@/lib/utils";
 import { AddDepartmentModal } from "./AddDepartmentModal";
 import { useState } from "react";
+import type { Department } from "@/types/kpi";
 
 interface BankingSidebarProps {
   selectedDepartment: string | null;
   selectedView: "kpi-management" | "alert-curation" | "alerts-dashboard";
+  departments: Department[];
   onDepartmentSelect: (departmentId: string) => void;
   onViewSelect: (view: "kpi-management" | "alert-curation" | "alerts-dashboard") => void;
-  onAddDepartment: (department: { id: string; name: string; icon: any }) => void;
+  onAddDepartment: (department: { name: string; description?: string; icon: string }) => void;
 }
 
-export function BankingSidebar({ selectedDepartment, selectedView, onDepartmentSelect, onViewSelect, onAddDepartment }: BankingSidebarProps) {
-  const [departments, setDepartments] = useState([
-    { id: "operations", name: "Operations", icon: Clock },
-    { id: "sales", name: "Sales & Marketing", icon: TrendingUp },
-    { id: "financial", name: "Financial", icon: DollarSign },
-    { id: "compliance", name: "Risk & Compliance", icon: Shield },
-  ]);
+export function BankingSidebar({ 
+  selectedDepartment, 
+  selectedView, 
+  departments,
+  onDepartmentSelect, 
+  onViewSelect, 
+  onAddDepartment 
+}: BankingSidebarProps) {
   const [addDepartmentModalOpen, setAddDepartmentModalOpen] = useState(false);
 
-  const handleAddDepartment = (newDepartment: { id: string; name: string; icon: any }) => {
-    setDepartments(prev => [...prev, newDepartment]);
-    onAddDepartment(newDepartment);
+  const handleAddDepartment = (departmentData: { name: string; description?: string; icon: string }) => {
+    onAddDepartment(departmentData);
+    setAddDepartmentModalOpen(false);
   };
 
   return (
@@ -74,7 +77,6 @@ export function BankingSidebar({ selectedDepartment, selectedView, onDepartmentS
           </h3>
           <div className="space-y-2">
             {departments.map((department) => {
-              const Icon = department.icon;
               const isSelected = selectedDepartment === department.id && selectedView === "kpi-management";
               
               return (
@@ -94,7 +96,7 @@ export function BankingSidebar({ selectedDepartment, selectedView, onDepartmentS
                     "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
                     isSelected ? "bg-white/20" : "bg-white/10"
                   )}>
-                    <Icon className="w-4 h-4" />
+                    <span className="text-lg">{department.icon}</span>
                   </div>
                   <span className="font-medium text-sm">{department.name}</span>
                 </button>

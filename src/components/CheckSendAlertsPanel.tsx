@@ -9,6 +9,8 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { useAlerts, useBulkUpdateAlerts } from "@/hooks/useAlerts";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -18,14 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface Alert {
-  id: string;
-  alertDate: string;
-  alertDetails: string;
-  comment?: string;
-}
-
-import type { KpiData } from "@/types/kpi";
+import type { KpiData, Alert } from "@/types/kpi";
 
 interface CheckSendAlertsPanelProps {
   selectedKpi: KpiData | null;
@@ -38,46 +33,39 @@ export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlert
     from: subDays(new Date(), 7),
     to: new Date()
   });
-  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [selectedAlerts, setSelectedAlerts] = useState<Set<string>>(new Set());
   const [comments, setComments] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(false);
   const [isEditingTableName, setIsEditingTableName] = useState(false);
   const [editTableName, setEditTableName] = useState(tableName);
 
-  // Mock data for demonstration
-  const mockAlerts: Alert[] = [
-    {
-      id: "1",
-      alertDate: format(dateRange.to, 'yyyy-MM-dd'),
-      alertDetails: "Mall Branch breached wait time SLA (28 mins avg)"
-    },
-    {
-      id: "2", 
-      alertDate: format(dateRange.from, 'yyyy-MM-dd'),
-      alertDetails: "Downtown Branch has 22 mins avg wait time"
-    },
-    {
-      id: "3",
-      alertDate: format(new Date(dateRange.from.getTime() + (dateRange.to.getTime() - dateRange.from.getTime()) / 2), 'yyyy-MM-dd'),
-      alertDetails: "Airport Branch showing 18 mins wait time"
-    }
-  ];
+  // Fetch alerts from database
+  const { data: alerts = [], isLoading, refetch } = useAlerts({
+    startDate: dateRange.from.toISOString(),
+    endDate: dateRange.to.toISOString(),
+    kpiId: selectedKpi?.id
+  });
 
-  const loadAlerts = async () => {
-    setIsLoading(true);
-    setSelectedAlerts(new Set()); // Clear selections when loading new data
-    // Simulate API call
-    setTimeout(() => {
-      setAlerts(mockAlerts);
-      setIsLoading(false);
-    }, 800);
-  };
+  const bulkUpdateMutation = useBulkUpdateAlerts();
 
   const handleTableNameSave = () => {
     setTableName(editTableName);
     setIsEditingTableName(false);
-    loadAlerts(); // Auto-reload when table name changes
+    refetch(); // Reload alerts when table name changes
+  };
+
+  const handleSendAlerts = async () => {
+    try {
+      const alertIds = Array.from(selectedAlerts);
+      await bulkUpdateMutation.mutateAsync({
+        ids: alertIds,
+        data: { sent_date: new Date().toISOString() }
+      });
+      toast.success(`${alertIds.length} alerts sent successfully`);
+      setSelectedAlerts(new Set()); // Clear selections
+    } catch (error) {
+      toast.error("Failed to send alerts");
+      console.error("Error sending alerts:", error);
+    }
   };
 
 
@@ -103,15 +91,10 @@ export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlert
     }
   }, [selectedKpi]);
 
-  // Auto-load alerts when date range changes
+  // Clear selections when alerts change
   useEffect(() => {
-    loadAlerts();
-  }, [dateRange]);
-
-  // Initial load
-  useEffect(() => {
-    loadAlerts();
-  }, []);
+    setSelectedAlerts(new Set());
+  }, [alerts]);
 
   const getKpiName = (kpi: KpiData | null) => {
     return kpi?.name || "Unknown KPI";
@@ -249,8 +232,8 @@ export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlert
                       }
                     />
                   </TableCell>
-                  <TableCell className="font-medium">{alert.alertDate}</TableCell>
-                  <TableCell>{alert.alertDetails}</TableCell>
+                  <TableCell className="font-medium">{format(new Date(alert.alert_date), 'yyyy-MM-dd')}</TableCell>
+                  <TableCell>{alert.alert_detail}</TableCell>
                   <TableCell>
                     <Input
                       placeholder="Add optional comment..."
@@ -285,9 +268,10 @@ export function CheckSendAlertsPanel({ selectedKpi, onPassToAI }: CheckSendAlert
               variant="outline" 
               className="gap-2" 
               disabled={selectedAlerts.size === 0}
+              onClick={handleSendAlerts}
             >
               <Mail className="w-4 h-4" />
-              Send to Me
+              Send Alerts ({selectedAlerts.size})
             </Button>
             <Button 
               className="gap-2 bg-accent hover:bg-accent/90" 

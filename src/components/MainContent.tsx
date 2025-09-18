@@ -5,14 +5,7 @@ import { AISummarizerPanel } from "./AISummarizerPanel";
 import { NewEmailSettingsPanel } from "./NewEmailSettingsPanel";
 import { NewSentAlertsHistoryPanel } from "./NewSentAlertsHistoryPanel";
 
-import type { KpiData } from "@/types/kpi";
-
-interface Alert {
-  id: string;
-  alertDate: string;
-  alertDetails: string;
-  comment?: string;
-}
+import type { KpiData, Alert } from "@/types/kpi";
 
 interface MainContentProps {
   selectedKpi: KpiData | null;
@@ -20,68 +13,70 @@ interface MainContentProps {
   onTabChange?: (tabId: string) => void;
 }
 
-export function MainContent({ selectedKpi, activeTab: externalActiveTab, onTabChange }: MainContentProps) {
-  const [internalActiveTab, setInternalActiveTab] = useState("check-send");
+export function MainContent({ selectedKpi, activeTab = "alerts", onTabChange }: MainContentProps) {
   const [selectedAlertsForAI, setSelectedAlertsForAI] = useState<Alert[]>([]);
-  
-  const activeTab = externalActiveTab || internalActiveTab;
-  const setActiveTab = onTabChange || setInternalActiveTab;
+  const [currentActiveTab, setCurrentActiveTab] = useState(activeTab);
 
-  // Map internal tab names to component values
-  const tabValue = activeTab === "check-send" ? "alerts" : 
-                   activeTab === "ai-summarizer" ? "ai-summarizer" :
-                   activeTab === "email-settings" ? "settings" : 
-                   activeTab === "history" ? "history" : "alerts";
+  const handleTabChange = (tabId: string) => {
+    setCurrentActiveTab(tabId);
+    onTabChange?.(tabId);
+  };
 
   const handlePassToAI = (alerts: Alert[]) => {
     setSelectedAlertsForAI(alerts);
-    setActiveTab("ai-summarizer");
+    handleTabChange("ai-summarizer");
   };
 
-  const handleBackToAlerts = () => {
-    setActiveTab("check-send");
-  };
-
-  const handleSendEmailWithSummary = (summary: string) => {
-    // TODO: Implement email sending with AI summary
-    console.log("Sending email with summary:", summary);
-  };
+  if (!selectedKpi) {
+    return (
+      <div className="flex-1 bg-banking-panel flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <h3 className="text-lg font-medium mb-2">No KPI Selected</h3>
+          <p>Please select a KPI from the sidebar to view its details and manage alerts.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex-1 bg-banking-panel p-8">
-      <div className="max-w-7xl mx-auto">
-        <Tabs 
-          value={tabValue} 
-          onValueChange={(value) => {
-            const tabId = value === "alerts" ? "check-send" : 
-                         value === "ai-summarizer" ? "ai-summarizer" :
-                         value === "settings" ? "email-settings" : 
-                         value === "history" ? "history" : "check-send";
-            setActiveTab(tabId);
-          }}
-          className="space-y-6"
-        >
-          <TabsList className="grid w-full grid-cols-4 bg-card border border-banking-border">
+    <div className="flex-1 bg-banking-panel">
+      {/* Header */}
+      <div className="border-b border-banking-border bg-banking-header px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+            <span className="text-lg">{selectedKpi.icon || "📊"}</span>
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">{selectedKpi.name}</h1>
+            <p className="text-sm text-muted-foreground">{selectedKpi.description}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Tabs */}
+      <div className="p-6">
+        <Tabs value={currentActiveTab} onValueChange={handleTabChange}>
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger 
               value="alerts" 
               className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
             >
-              📤 Check & Send Alerts
+              🚨 Check & Send Alerts
             </TabsTrigger>
             <TabsTrigger 
-              value="ai-summarizer"
+              value="ai-summarizer" 
               className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
             >
-              🧠 AI Summarizer
+              🤖 AI Summarizer
             </TabsTrigger>
             <TabsTrigger 
-              value="settings"
+              value="email-settings" 
               className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
             >
               ✉️ Email Settings
             </TabsTrigger>
             <TabsTrigger 
-              value="history"
+              value="sent-alerts" 
               className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
             >
               📜 Sent Alerts History
@@ -93,18 +88,14 @@ export function MainContent({ selectedKpi, activeTab: externalActiveTab, onTabCh
           </TabsContent>
 
           <TabsContent value="ai-summarizer" className="mt-6">
-            <AISummarizerPanel 
-              selectedAlerts={selectedAlertsForAI}
-              onBackToAlerts={handleBackToAlerts}
-              onSendEmail={handleSendEmailWithSummary}
-            />
+            <AISummarizerPanel selectedKpi={selectedKpi} selectedAlerts={selectedAlertsForAI} />
           </TabsContent>
 
-          <TabsContent value="settings" className="mt-6">
+          <TabsContent value="email-settings" className="mt-6">
             <NewEmailSettingsPanel selectedKpi={selectedKpi} />
           </TabsContent>
 
-          <TabsContent value="history" className="mt-6">
+          <TabsContent value="sent-alerts" className="mt-6">
             <NewSentAlertsHistoryPanel selectedKpi={selectedKpi} />
           </TabsContent>
         </Tabs>
