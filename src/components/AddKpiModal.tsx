@@ -14,44 +14,29 @@ interface AddKpiModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddKpi: (kpiData: any) => void;
-  preselectedDomain?: string | null;
+  departmentId: string;
+  departmentName: string;
 }
 
-export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: AddKpiModalProps) {
+export function AddKpiModal({ isOpen, onClose, onAddKpi, departmentId, departmentName }: AddKpiModalProps) {
   const [formData, setFormData] = useState({
     name: "",
-    domain: preselectedDomain || "",
     description: "",
-    alertTableName: "",
-    defaultEmailTo: [] as string[],
-    defaultEmailCC: [] as string[],
-    defaultSubject: "",
-    defaultBody: "",
-    defaultFooter: "",
-    isFavorite: false,
+    alert_table_name: "",
+    default_email_to: [] as string[],
+    default_email_cc: [] as string[],
+    default_subject: "",
+    default_body: "",
+    default_footer: "",
+    is_favorite: false,
     // Advanced fields
-    kpiCode: "",
-    severityTagging: true,
-    ownerDepartment: ""
+    identifier: "",
+    severity_tagging: true,
   });
-
-  // Update domain when preselectedDomain changes
-  useEffect(() => {
-    if (preselectedDomain) {
-      setFormData(prev => ({ ...prev, domain: preselectedDomain }));
-    }
-  }, [preselectedDomain]);
 
   const [emailToInput, setEmailToInput] = useState("");
   const [emailCCInput, setEmailCCInput] = useState("");
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-
-  const businessDomains = [
-    { value: "operations", label: "Operations" },
-    { value: "sales", label: "Sales & Marketing" },
-    { value: "financial", label: "Financial" },
-    { value: "compliance", label: "Risk & Compliance" }
-  ];
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -59,7 +44,7 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
 
   const addEmailTag = (type: 'to' | 'cc', email: string) => {
     if (email.trim() && email.includes('@')) {
-      const field = type === 'to' ? 'defaultEmailTo' : 'defaultEmailCC';
+      const field = type === 'to' ? 'default_email_to' : 'default_email_cc';
       const currentEmails = formData[field];
       if (!currentEmails.includes(email.trim())) {
         handleInputChange(field, [...currentEmails, email.trim()]);
@@ -70,7 +55,7 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
   };
 
   const removeEmailTag = (type: 'to' | 'cc', email: string) => {
-    const field = type === 'to' ? 'defaultEmailTo' : 'defaultEmailCC';
+    const field = type === 'to' ? 'default_email_to' : 'default_email_cc';
     const currentEmails = formData[field];
     handleInputChange(field, currentEmails.filter(e => e !== email));
   };
@@ -78,32 +63,28 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.domain) {
+    if (!formData.name.trim()) {
       return; // Basic validation
     }
 
-    // Generate KPI code if not provided
-    const kpiCode = formData.kpiCode || formData.name.toLowerCase().replace(/\s+/g, '-');
+    // Generate identifier if not provided
+    const identifier = formData.identifier || formData.name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
     
     const newKpi = {
-      id: kpiCode,
-      name: formData.name,
-      domain: formData.domain,
-      description: formData.description,
-      alertTableName: formData.alertTableName,
-      defaultEmailTo: formData.defaultEmailTo,
-      defaultEmailCC: formData.defaultEmailCC,
-      defaultSubject: formData.defaultSubject,
-      defaultBody: formData.defaultBody,
-      defaultFooter: formData.defaultFooter,
-      isFavorite: formData.isFavorite,
-      identifier: kpiCode,
-      severityTagging: formData.severityTagging,
-      ownerDepartment: formData.ownerDepartment,
-      // Default properties
-      icon: Plus, // Will be updated based on domain
-      severity: "info",
-      status: "normal"
+      name: formData.name.trim(),
+      domain: departmentName, // Use department name as domain
+      description: formData.description.trim(),
+      alert_table_name: formData.alert_table_name.trim(),
+      default_email_to: formData.default_email_to,
+      default_email_cc: formData.default_email_cc,
+      default_subject: formData.default_subject.trim(),
+      default_body: formData.default_body.trim(),
+      default_footer: formData.default_footer.trim(),
+      is_favorite: formData.is_favorite,
+      identifier: identifier,
+      severity_tagging: formData.severity_tagging,
+      owner_department_id: departmentId, // Link to the department
+      is_active: true
     };
 
     onAddKpi(newKpi);
@@ -112,18 +93,16 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
     // Reset form
     setFormData({
       name: "",
-      domain: preselectedDomain || "",
       description: "",
-      alertTableName: "",
-      defaultEmailTo: [],
-      defaultEmailCC: [],
-      defaultSubject: "",
-      defaultBody: "",
-      defaultFooter: "",
-      isFavorite: false,
-      kpiCode: "",
-      severityTagging: true,
-      ownerDepartment: ""
+      alert_table_name: "",
+      default_email_to: [],
+      default_email_cc: [],
+      default_subject: "",
+      default_body: "",
+      default_footer: "",
+      is_favorite: false,
+      identifier: "",
+      severity_tagging: true,
     });
   };
 
@@ -185,40 +164,22 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
             <Plus className="w-5 h-5" />
-            Add New KPI
+            Add New KPI - {departmentName}
           </DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="kpi-name" className="text-sm font-medium">KPI Name *</Label>
-                <Input
-                  id="kpi-name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  placeholder="e.g. Branch Wait Time"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="business-domain" className="text-sm font-medium">Business Domain *</Label>
-                <Select value={formData.domain} onValueChange={(value) => handleInputChange("domain", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select domain" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {businessDomains.map((domain) => (
-                      <SelectItem key={domain.value} value={domain.value}>
-                        {domain.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="kpi-name" className="text-sm font-medium">KPI Name *</Label>
+              <Input
+                id="kpi-name"
+                value={formData.name}
+                onChange={(e) => handleInputChange("name", e.target.value)}
+                placeholder="e.g. Branch Wait Time"
+                required
+              />
             </div>
 
             <div className="space-y-2">
@@ -236,8 +197,8 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
               <Label htmlFor="alert-table" className="text-sm font-medium">Alert Table Name</Label>
               <Input
                 id="alert-table"
-                value={formData.alertTableName}
-                onChange={(e) => handleInputChange("alertTableName", e.target.value)}
+                value={formData.alert_table_name}
+                onChange={(e) => handleInputChange("alert_table_name", e.target.value)}
                 placeholder="e.g. ace_alerts.branch_wait_time_alerts"
               />
             </div>
@@ -252,7 +213,7 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
                 <Label className="text-sm font-medium">Default Email To</Label>
                 <EmailTagInput
                   type="to"
-                  emails={formData.defaultEmailTo}
+                  emails={formData.default_email_to}
                   inputValue={emailToInput}
                   setInputValue={setEmailToInput}
                   placeholder="Add email addresses"
@@ -263,7 +224,7 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
                 <Label className="text-sm font-medium">Default Email CC</Label>
                 <EmailTagInput
                   type="cc"
-                  emails={formData.defaultEmailCC}
+                  emails={formData.default_email_cc}
                   inputValue={emailCCInput}
                   setInputValue={setEmailCCInput}
                   placeholder="Add CC email addresses"
@@ -274,8 +235,8 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
                 <Label htmlFor="default-subject" className="text-sm font-medium">Default Subject</Label>
                 <Input
                   id="default-subject"
-                  value={formData.defaultSubject}
-                  onChange={(e) => handleInputChange("defaultSubject", e.target.value)}
+                  value={formData.default_subject}
+                  onChange={(e) => handleInputChange("default_subject", e.target.value)}
                   placeholder="Optional subject template"
                 />
               </div>
@@ -284,8 +245,8 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
                 <Label htmlFor="default-body" className="text-sm font-medium">Default Body</Label>
                 <Textarea
                   id="default-body"
-                  value={formData.defaultBody}
-                  onChange={(e) => handleInputChange("defaultBody", e.target.value)}
+                  value={formData.default_body}
+                  onChange={(e) => handleInputChange("default_body", e.target.value)}
                   placeholder="Optional body text"
                   rows={3}
                 />
@@ -295,8 +256,8 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
                 <Label htmlFor="default-footer" className="text-sm font-medium">Default Footer Message</Label>
                 <Textarea
                   id="default-footer"
-                  value={formData.defaultFooter}
-                  onChange={(e) => handleInputChange("defaultFooter", e.target.value)}
+                  value={formData.default_footer}
+                  onChange={(e) => handleInputChange("default_footer", e.target.value)}
                   placeholder="e.g. Regards, ACE Alerting Team"
                   rows={2}
                 />
@@ -312,8 +273,8 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
             </div>
             <Switch
               id="favorite-toggle"
-              checked={formData.isFavorite}
-              onCheckedChange={(checked) => handleInputChange("isFavorite", checked)}
+              checked={formData.is_favorite}
+              onCheckedChange={(checked) => handleInputChange("is_favorite", checked)}
             />
           </div>
 
@@ -328,26 +289,14 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
             </CollapsibleTrigger>
             
             <CollapsibleContent className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="kpi-code" className="text-sm font-medium">KPI Identifier (Code)</Label>
-                  <Input
-                    id="kpi-code"
-                    value={formData.kpiCode}
-                    onChange={(e) => handleInputChange("kpiCode", e.target.value)}
-                    placeholder="e.g. kpi_branch_wait"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="owner-dept" className="text-sm font-medium">Owner Department</Label>
-                  <Input
-                    id="owner-dept"
-                    value={formData.ownerDepartment}
-                    onChange={(e) => handleInputChange("ownerDepartment", e.target.value)}
-                    placeholder="e.g. Branch Ops, Retail Sales"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="kpi-identifier" className="text-sm font-medium">KPI Identifier (Code)</Label>
+                <Input
+                  id="kpi-identifier"
+                  value={formData.identifier}
+                  onChange={(e) => handleInputChange("identifier", e.target.value)}
+                  placeholder="e.g. branch_wait_time (auto-generated if empty)"
+                />
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-lg border">
@@ -357,21 +306,20 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, preselectedDomain }: Ad
                 </div>
                 <Switch
                   id="severity-toggle"
-                  checked={formData.severityTagging}
-                  onCheckedChange={(checked) => handleInputChange("severityTagging", checked)}
+                  checked={formData.severity_tagging}
+                  onCheckedChange={(checked) => handleInputChange("severity_tagging", checked)}
                 />
               </div>
             </CollapsibleContent>
           </Collapsible>
 
-          {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-banking-sidebar-accent hover:bg-banking-sidebar-accent/90">
+            <Button type="submit" className="bg-primary hover:bg-primary/90">
               <Plus className="w-4 h-4 mr-2" />
-              Add KPI
+              Add KPI to {departmentName}
             </Button>
           </div>
         </form>

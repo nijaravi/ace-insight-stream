@@ -288,10 +288,11 @@ export function KpiManagementTable({
         isOpen={addKpiModalOpen}
         onClose={() => setAddKpiModalOpen(false)}
         onAddKpi={(kpiData) => {
-          onAddKpi({ ...kpiData, domain: departmentId });
+          onAddKpi({ ...kpiData, owner_department_id: departmentId });
           setAddKpiModalOpen(false);
         }}
-        preselectedDomain={departmentId}
+        departmentId={departmentId}
+        departmentName={departmentName}
       />
     </div>
   );
