@@ -129,18 +129,8 @@ const Index = () => {
         onAddDepartment={handleAddDepartment}
         onUpdateDepartment={handleUpdateDepartment}
       />
-      <div className="flex-1 pl-8 pt-6 relative">
+      <div className="flex-1 pl-8 pt-6">
         {renderMainContent()}
-        
-        {/* Footer */}
-        <div className="fixed bottom-4 right-4 flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 shadow-sm">
-          <span className="text-sm text-muted-foreground">Powered by ACE</span>
-          <img 
-            src={adibLogo} 
-            alt="ADIB Bank Logo" 
-            className="h-6 w-auto"
-          />
-        </div>
       </div>
     </div>
   );
