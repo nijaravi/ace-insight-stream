@@ -163,6 +163,10 @@ export function BankingSidebar({
 
         {/* Alerts Dashboard Section */}
         <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide flex items-center gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Alerts Dashboard
+          </h3>
           <button
             onClick={() => onViewSelect("alerts-dashboard")}
             className={cn(
@@ -177,7 +181,7 @@ export function BankingSidebar({
             )}>
               <BarChart3 className="w-4 h-4" />
             </div>
-            <span className="font-medium text-sm">Alerts Dashboard</span>
+            <span className="font-medium text-sm">Sent Alerts History</span>
           </button>
         </div>
       </div>
