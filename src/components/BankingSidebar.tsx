@@ -1,20 +1,29 @@
-import { Bell, Clock, TrendingUp, DollarSign, Shield, Building2, Zap, BarChart3 } from "lucide-react";
+import { Bell, Clock, TrendingUp, DollarSign, Shield, Building2, Zap, BarChart3, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AddDepartmentModal } from "./AddDepartmentModal";
+import { useState } from "react";
 
 interface BankingSidebarProps {
   selectedDepartment: string | null;
   selectedView: "kpi-management" | "alert-curation" | "alerts-dashboard";
   onDepartmentSelect: (departmentId: string) => void;
   onViewSelect: (view: "kpi-management" | "alert-curation" | "alerts-dashboard") => void;
+  onAddDepartment: (department: { id: string; name: string; icon: any }) => void;
 }
 
-export function BankingSidebar({ selectedDepartment, selectedView, onDepartmentSelect, onViewSelect }: BankingSidebarProps) {
-  const departments = [
+export function BankingSidebar({ selectedDepartment, selectedView, onDepartmentSelect, onViewSelect, onAddDepartment }: BankingSidebarProps) {
+  const [departments, setDepartments] = useState([
     { id: "operations", name: "Operations", icon: Clock },
     { id: "sales", name: "Sales & Marketing", icon: TrendingUp },
     { id: "financial", name: "Financial", icon: DollarSign },
     { id: "compliance", name: "Risk & Compliance", icon: Shield },
-  ];
+  ]);
+  const [addDepartmentModalOpen, setAddDepartmentModalOpen] = useState(false);
+
+  const handleAddDepartment = (newDepartment: { id: string; name: string; icon: any }) => {
+    setDepartments(prev => [...prev, newDepartment]);
+    onAddDepartment(newDepartment);
+  };
 
   return (
     <div className="w-80 bg-banking-sidebar text-banking-sidebar-foreground border-r border-banking-border flex flex-col">
@@ -33,6 +42,30 @@ export function BankingSidebar({ selectedDepartment, selectedView, onDepartmentS
 
       {/* Navigation */}
       <div className="flex-1 p-4 overflow-y-auto space-y-6">
+        {/* Check Alerts & Send Section */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide flex items-center gap-2">
+            <Zap className="w-4 h-4" />
+            Check Alerts & Send
+          </h3>
+          <button
+            onClick={() => onViewSelect("alert-curation")}
+            className={cn(
+              "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
+              "hover:bg-banking-sidebar-accent/10",
+              selectedView === "alert-curation" && "bg-banking-sidebar-accent text-white shadow-glow"
+            )}
+          >
+            <div className={cn(
+              "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+              selectedView === "alert-curation" ? "bg-white/20" : "bg-white/10"
+            )}>
+              <Bell className="w-4 h-4" />
+            </div>
+            <span className="font-medium text-sm">Manual Alert Curation</span>
+          </button>
+        </div>
+
         {/* KPI Management Section */}
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide flex items-center gap-2">
@@ -67,31 +100,22 @@ export function BankingSidebar({ selectedDepartment, selectedView, onDepartmentS
                 </button>
               );
             })}
+            
+            {/* Add Department Button */}
+            <button
+              onClick={() => setAddDepartmentModalOpen(true)}
+              className={cn(
+                "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
+                "hover:bg-banking-sidebar-accent/5 border-2 border-dashed border-banking-sidebar-accent/30",
+                "text-banking-sidebar-foreground/70 hover:text-banking-sidebar-foreground"
+              )}
+            >
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-banking-sidebar-accent/10">
+                <Plus className="w-4 h-4" />
+              </div>
+              <span className="font-medium text-sm">Add Department</span>
+            </button>
           </div>
-        </div>
-
-        {/* Alert Curation & Sending Section */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-banking-sidebar-foreground/70 uppercase tracking-wide flex items-center gap-2">
-            <Zap className="w-4 h-4" />
-            Alert Curation & Sending
-          </h3>
-          <button
-            onClick={() => onViewSelect("alert-curation")}
-            className={cn(
-              "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
-              "hover:bg-banking-sidebar-accent/10",
-              selectedView === "alert-curation" && "bg-banking-sidebar-accent text-white shadow-glow"
-            )}
-          >
-            <div className={cn(
-              "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-              selectedView === "alert-curation" ? "bg-white/20" : "bg-white/10"
-            )}>
-              <Bell className="w-4 h-4" />
-            </div>
-            <span className="font-medium text-sm">Manual Alert Curation</span>
-          </button>
         </div>
 
         {/* Alerts Dashboard Section */}
@@ -114,6 +138,12 @@ export function BankingSidebar({ selectedDepartment, selectedView, onDepartmentS
           </button>
         </div>
       </div>
+
+      <AddDepartmentModal
+        open={addDepartmentModalOpen}
+        onOpenChange={setAddDepartmentModalOpen}
+        onAddDepartment={handleAddDepartment}
+      />
     </div>
   );
 }

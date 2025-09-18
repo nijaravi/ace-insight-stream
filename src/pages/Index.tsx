@@ -111,6 +111,11 @@ const Index = () => {
     console.log("Adding KPI:", kpiData);
   };
 
+  const handleAddDepartment = (department: { id: string; name: string; icon: any }) => {
+    // Add new department logic here
+    console.log("Adding department:", department);
+  };
+
   const renderMainContent = () => {
     if (selectedView === "alert-curation") {
       return <AlertCurationPanel />;
@@ -158,8 +163,11 @@ const Index = () => {
         selectedView={selectedView}
         onDepartmentSelect={setSelectedDepartment}
         onViewSelect={setSelectedView}
+        onAddDepartment={handleAddDepartment}
       />
-      {renderMainContent()}
+      <div className="flex-1 pl-8 pt-6">
+        {renderMainContent()}
+      </div>
     </div>
   );
 };
