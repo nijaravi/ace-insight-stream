@@ -4,22 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface Alert {
-  id: string;
-  alertDate: string;
-  alertDetails: string;
-  comment?: string;
-}
+import type { Alert, KpiData } from "@/types/kpi";
 
 interface AISummarizerPanelProps {
+  selectedKpi: KpiData | null;
   selectedAlerts: Alert[];
-  onBackToAlerts: () => void;
-  onSendEmail: (summary: string) => void;
 }
 
-export function AISummarizerPanel({ selectedAlerts, onBackToAlerts, onSendEmail }: AISummarizerPanelProps) {
+export function AISummarizerPanel({ selectedKpi, selectedAlerts }: AISummarizerPanelProps) {
   const [prompt, setPrompt] = useState(
+    selectedKpi ? 
+    `Analyze the following ${selectedKpi.name} alerts and provide:
+1. Summary of key issues
+2. Severity assessment
+3. Recommended actions
+4. Impact analysis
+
+Please format the response professionally for banking executives.` :
     "Summarize the alerts grouped by region and highlight high severity items. Please provide a clear, concise analysis of the current situation."
   );
   const [tempPrompt, setTempPrompt] = useState(prompt);
@@ -46,7 +47,7 @@ We have identified ${selectedAlerts.length} alerts that require attention:
 
 ## Alert Details
 ${selectedAlerts.map((alert, index) => 
-  `${index + 1}. **${alert.alertDate}**: ${alert.alertDetails}${alert.comment ? ` (Note: ${alert.comment})` : ''}`
+  `${index + 1}. **${new Date(alert.alert_date).toLocaleDateString()}**: ${alert.alert_detail}${alert.comment ? ` (Note: ${alert.comment})` : ''}`
 ).join('\n')}
 
 ## Key Findings
@@ -82,7 +83,8 @@ Generated on ${new Date().toLocaleString()}`;
   };
 
   const handleSendEmail = () => {
-    onSendEmail(summary);
+    console.log("Sending email with summary:", summary);
+    // TODO: Implement actual email sending
   };
 
   const handleSendToMe = () => {
@@ -101,10 +103,6 @@ Generated on ${new Date().toLocaleString()}`;
           </h2>
           <p className="text-muted-foreground">Generate AI-powered summaries of selected alerts</p>
         </div>
-        <Button variant="outline" onClick={onBackToAlerts} className="gap-2">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Alerts
-        </Button>
       </div>
 
       {/* Section 1: Prompt Editor */}
@@ -177,7 +175,7 @@ Generated on ${new Date().toLocaleString()}`;
             <div className="space-y-2 max-h-32 overflow-y-auto">
               {selectedAlerts.map((alert, index) => (
                 <div key={alert.id} className="text-sm p-2 bg-muted rounded text-foreground">
-                  <span className="font-medium">{index + 1}.</span> {alert.alertDetails}
+                  <span className="font-medium">{index + 1}.</span> {alert.alert_detail}
                 </div>
               ))}
             </div>
@@ -220,13 +218,6 @@ Generated on ${new Date().toLocaleString()}`;
           >
             <Send className="w-4 h-4" />
             📧 Send Email with AI Summary
-          </Button>
-          <Button
-            variant="outline"
-            onClick={onBackToAlerts}
-            className="gap-2 px-8"
-          >
-            🔙 Back to Alerts
           </Button>
         </div>
       )}

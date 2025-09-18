@@ -3,31 +3,25 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Clock, TrendingUp, DollarSign, Shield, Building2, Users, BarChart, Cog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddDepartmentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddDepartment: (department: { id: string; name: string; icon: any }) => void;
+  onAddDepartment: (department: { name: string; description?: string; icon: string }) => void;
 }
 
-const iconOptions = [
-  { value: "Clock", label: "Clock", icon: Clock },
-  { value: "TrendingUp", label: "Trending Up", icon: TrendingUp },
-  { value: "DollarSign", label: "Dollar Sign", icon: DollarSign },
-  { value: "Shield", label: "Shield", icon: Shield },
-  { value: "Building2", label: "Building", icon: Building2 },
-  { value: "Users", label: "Users", icon: Users },
-  { value: "BarChart", label: "Bar Chart", icon: BarChart },
-  { value: "Cog", label: "Settings", icon: Cog },
-];
 
 export function AddDepartmentModal({ open, onOpenChange, onAddDepartment }: AddDepartmentModalProps) {
   const [departmentName, setDepartmentName] = useState("");
-  const [selectedIcon, setSelectedIcon] = useState("Building2");
+  const [description, setDescription] = useState("");
+  const [selectedIcon, setSelectedIcon] = useState("🏢");
   const { toast } = useToast();
+
+  // Available emoji icons for departments
+  const emojiIcons = [
+    "🏢", "⚙️", "📈", "💰", "🛡️", "👥", "📊", "🔧", "💼", "🎯", "📋", "🔍"
+  ];
 
   const handleSave = () => {
     if (!departmentName.trim()) {
@@ -38,14 +32,11 @@ export function AddDepartmentModal({ open, onOpenChange, onAddDepartment }: AddD
       });
       return;
     }
-
-    const selectedIconData = iconOptions.find(icon => icon.value === selectedIcon);
-    const departmentId = departmentName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     
     onAddDepartment({
-      id: departmentId,
-      name: departmentName,
-      icon: selectedIconData?.icon || Building2,
+      name: departmentName.trim(),
+      description: description.trim() || undefined,
+      icon: selectedIcon,
     });
 
     toast({
@@ -54,13 +45,15 @@ export function AddDepartmentModal({ open, onOpenChange, onAddDepartment }: AddD
     });
 
     setDepartmentName("");
-    setSelectedIcon("Building2");
+    setDescription("");
+    setSelectedIcon("🏢");
     onOpenChange(false);
   };
 
   const handleCancel = () => {
     setDepartmentName("");
-    setSelectedIcon("Building2");
+    setDescription("");
+    setSelectedIcon("🏢");
     onOpenChange(false);
   };
 
@@ -80,26 +73,33 @@ export function AddDepartmentModal({ open, onOpenChange, onAddDepartment }: AddD
               onChange={(e) => setDepartmentName(e.target.value)}
             />
           </div>
+          
           <div className="space-y-2">
-            <Label htmlFor="department-icon">Icon (Optional)</Label>
-            <Select value={selectedIcon} onValueChange={setSelectedIcon}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select an icon" />
-              </SelectTrigger>
-              <SelectContent>
-                {iconOptions.map((option) => {
-                  const IconComponent = option.icon;
-                  return (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div className="flex items-center gap-2">
-                        <IconComponent className="w-4 h-4" />
-                        <span>{option.label}</span>
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="department-description">Description (Optional)</Label>
+            <Input
+              id="department-description"
+              placeholder="Enter department description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="department-icon">Icon</Label>
+            <div className="grid grid-cols-6 gap-2">
+              {emojiIcons.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => setSelectedIcon(emoji)}
+                  className={`p-2 text-xl border rounded hover:bg-muted transition-colors ${
+                    selectedIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
+                  }`}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <DialogFooter>
