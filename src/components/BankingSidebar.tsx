@@ -15,6 +15,7 @@ interface BankingSidebarProps {
   onViewSelect: (view: "kpi-management" | "alert-curation" | "alerts-dashboard") => void;
   onAddDepartment: (department: { name: string; description?: string; icon: string }) => void;
   onUpdateDepartment: (id: string, department: { name: string; description?: string; icon: string }) => void;
+  onDeleteDepartment: (id: string) => void;
 }
 
 export function BankingSidebar({ 
@@ -24,7 +25,8 @@ export function BankingSidebar({
   onDepartmentSelect, 
   onViewSelect, 
   onAddDepartment,
-  onUpdateDepartment
+  onUpdateDepartment,
+  onDeleteDepartment
 }: BankingSidebarProps) {
   const [addDepartmentModalOpen, setAddDepartmentModalOpen] = useState(false);
   const [editDepartmentModalOpen, setEditDepartmentModalOpen] = useState(false);
@@ -138,6 +140,13 @@ export function BankingSidebar({
                       <DropdownMenuItem onClick={() => handleEditDepartment(department)}>
                         <Edit className="w-4 h-4 mr-2" />
                         Edit Department
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => onDeleteDepartment(department.id)}
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete Department
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

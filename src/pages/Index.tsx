@@ -61,6 +61,19 @@ const Index = () => {
     }
   };
 
+  const handleDeleteDepartment = async (id: string) => {
+    try {
+      // Since we're using mock data, we'll simulate the deletion
+      toast.success("Department deleted successfully");
+      console.log("Delete department:", id);
+      // If we had a real delete mutation, it would be:
+      // await deleteDepartmentMutation.mutateAsync(id);
+    } catch (error) {
+      toast.error("Failed to delete department");
+      console.error("Error deleting department:", error);
+    }
+  };
+
   const renderMainContent = () => {
     if (selectedView === "alert-curation") {
       return <AlertCurationPanel />;
@@ -128,6 +141,7 @@ const Index = () => {
         onViewSelect={setSelectedView}
         onAddDepartment={handleAddDepartment}
         onUpdateDepartment={handleUpdateDepartment}
+        onDeleteDepartment={handleDeleteDepartment}
       />
       <div className="flex-1 pl-8 pt-6">
         {renderMainContent()}
