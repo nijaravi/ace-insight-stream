@@ -1,4 +1,4 @@
-import { Bell, Clock, TrendingUp, DollarSign, Shield, Building2, Zap, BarChart3, Plus, MoreVertical, Edit, Trash2 } from "lucide-react";
+import { Bell, Clock, TrendingUp, DollarSign, Shield, Building2, Zap, BarChart3, Plus, MoreVertical, Edit, Trash2, ShieldCheck, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AddDepartmentModal } from "./AddDepartmentModal";
 import { EditDepartmentModal } from "./EditDepartmentModal";
@@ -6,6 +6,18 @@ import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Department } from "@/types/kpi";
 import adibLogo from "@/assets/adib-logo.png";
+
+// Icon mapping for department icons
+const iconMap = {
+  ShieldCheck,
+  Settings,
+  DollarSign,
+  Shield,
+  Building2,
+  Bell,
+  BarChart3,
+  TrendingUp
+} as const;
 
 interface BankingSidebarProps {
   selectedDepartment: string | null;
@@ -119,7 +131,10 @@ export function BankingSidebar({
                       "w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0",
                       isSelected ? "bg-white/20" : "bg-white/10"
                     )}>
-                      <span className="text-lg">{department.icon}</span>
+                      {(() => {
+                        const IconComponent = iconMap[department.icon as keyof typeof iconMap];
+                        return IconComponent ? <IconComponent className="w-4 h-4" /> : <Building2 className="w-4 h-4" />;
+                      })()}
                     </div>
                     <span className="font-medium text-sm truncate">{department.name}</span>
                   </button>
