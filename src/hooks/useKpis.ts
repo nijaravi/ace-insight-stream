@@ -1,57 +1,61 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { KpiData, KpiTableData } from "@/types/kpi";
-import { mockKpis, mockDepartments } from "@/data/mockData";
-
-let kpisStore = [...mockKpis];
 
 export const useKpis = (departmentId?: string) => {
   return useQuery({
     queryKey: ["kpis", departmentId],
     queryFn: async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 400));
-      
-      let filteredKpis = [...kpisStore];
+      let query = supabase
+        .from("kpis")
+        .select(`
+          *,
+          department:departments(*)
+        `)
+        .order("name");
       
       if (departmentId) {
-        filteredKpis = filteredKpis.filter(kpi => kpi.owner_department_id === departmentId);
+        query = query.eq("owner_department_id", departmentId);
       }
       
-      // Generate enriched KPI table data
-      const enrichedData: KpiTableData[] = filteredKpis.map(kpi => {
-        const department = mockDepartments.find(d => d.id === kpi.owner_department_id);
-        
-        // Mock alerts count for this month (random between 0-10)
-        const alertsThisMonth = Math.floor(Math.random() * 11);
-        
-        // Mock last alert sent date (random within last 30 days or null)
-        const shouldHaveLastAlert = Math.random() > 0.3;
-        const lastAlertSent = shouldHaveLastAlert 
-          ? new Date(Date.now() - Math.floor(Math.random() * 30 * 24 * 60 * 60 * 1000)).toISOString()
-          : undefined;
-
-        return {
-          id: kpi.id,
-          name: kpi.name,
-          domain: kpi.domain,
-          description: kpi.description || '',
-          alert_table_name: kpi.alert_table_name,
-          default_email_to: kpi.default_email_to,
-          default_email_cc: kpi.default_email_cc,
-          default_subject: kpi.default_subject,
-          default_body: kpi.default_body,
-          default_footer: kpi.default_footer,
-          ai_prompt: kpi.ai_prompt,
-          last_alert_sent: lastAlertSent,
-          alerts_this_month: alertsThisMonth,
-          is_active: kpi.is_active,
-          owner_department_id: kpi.owner_department_id,
-          department
-        };
-      });
+      const { data, error } = await query;
       
-      return enrichedData;
+      if (error) throw error;
+      
+      // Transform data to include alerts count and last alert sent
+      const transformedData = await Promise.all(
+        data.map(async (kpi) => {
+          // Get alerts count for this month
+          const startOfMonth = new Date();
+          startOfMonth.setDate(1);
+          startOfMonth.setHours(0, 0, 0, 0);
+          
+          const { count } = await supabase
+            .from("alerts")
+            .select("*", { count: "exact", head: true })
+            .eq("kpi_id", kpi.id)
+            .gte("alert_date", startOfMonth.toISOString());
+          
+          // Get last alert sent date
+          const { data: lastAlert } = await supabase
+            .from("alert_history")
+            .select("sent_date")
+            .eq("kpi_id", kpi.id)
+            .order("sent_date", { ascending: false })
+            .limit(1)
+            .single();
+          
+          return {
+            ...kpi,
+            alerts_this_month: count || 0,
+            last_alert_sent: lastAlert?.sent_date,
+          } as KpiTableData;
+        })
+      );
+      
+      return transformedData;
     },
+    enabled: true,
   });
 };
 
@@ -60,18 +64,14 @@ export const useAddKpi = () => {
   
   return useMutation({
     mutationFn: async (kpi: Omit<KpiData, "id" | "created_at" | "updated_at">) => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 600));
+      const { data, error } = await supabase
+        .from("kpis")
+        .insert([kpi])
+        .select()
+        .single();
       
-      const newKpi: KpiData = {
-        ...kpi,
-        id: `kpi-${Date.now()}`,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      kpisStore.push(newKpi);
-      return newKpi;
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["kpis"] });
@@ -84,22 +84,15 @@ export const useUpdateKpi = () => {
   
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<KpiData> & { id: string }) => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 600));
+      const { data, error } = await supabase
+        .from("kpis")
+        .update(updates)
+        .eq("id", id)
+        .select()
+        .single();
       
-      const kpiIndex = kpisStore.findIndex(k => k.id === id);
-      if (kpiIndex === -1) {
-        throw new Error("KPI not found");
-      }
-      
-      const updatedKpi = {
-        ...kpisStore[kpiIndex],
-        ...updates,
-        updated_at: new Date().toISOString()
-      };
-      
-      kpisStore[kpiIndex] = updatedKpi;
-      return updatedKpi;
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["kpis"] });

@@ -1,57 +1,45 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Alert } from "@/types/kpi";
-import { mockAlerts } from "@/data/mockData";
-
-let alertsStore = [...mockAlerts];
 
 export const useAlerts = (filters?: { 
   startDate?: string; 
   endDate?: string; 
   kpiId?: string; 
   departmentId?: string; 
-  status?: string;
-  severity?: string;
 }) => {
   return useQuery({
     queryKey: ["alerts", filters],
     queryFn: async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 350));
-      
-      let filteredAlerts = [...alertsStore];
+      let query = supabase
+        .from("alerts")
+        .select(`
+          *,
+          kpi:kpis(name, domain),
+          department:departments(name)
+        `)
+        .order("alert_date", { ascending: false });
       
       if (filters?.startDate) {
-        filteredAlerts = filteredAlerts.filter(alert => 
-          new Date(alert.alert_date) >= new Date(filters.startDate!)
-        );
+        query = query.gte("alert_date", filters.startDate);
       }
       
       if (filters?.endDate) {
-        filteredAlerts = filteredAlerts.filter(alert => 
-          new Date(alert.alert_date) <= new Date(filters.endDate!)
-        );
+        query = query.lte("alert_date", filters.endDate);
       }
       
       if (filters?.kpiId) {
-        filteredAlerts = filteredAlerts.filter(alert => alert.kpi_id === filters.kpiId);
+        query = query.eq("kpi_id", filters.kpiId);
       }
       
       if (filters?.departmentId) {
-        filteredAlerts = filteredAlerts.filter(alert => alert.department_id === filters.departmentId);
+        query = query.eq("department_id", filters.departmentId);
       }
       
-      if (filters?.status) {
-        filteredAlerts = filteredAlerts.filter(alert => alert.status === filters.status);
-      }
+      const { data, error } = await query;
       
-      if (filters?.severity) {
-        filteredAlerts = filteredAlerts.filter(alert => alert.severity === filters.severity);
-      }
-      
-      // Sort by alert_date descending (most recent first)
-      return filteredAlerts.sort((a, b) => 
-        new Date(b.alert_date).getTime() - new Date(a.alert_date).getTime()
-      );
+      if (error) throw error;
+      return data as Alert[];
     },
     enabled: true,
   });
@@ -62,21 +50,15 @@ export const useUpdateAlert = () => {
   
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Alert> & { id: string }) => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 400));
+      const { data, error } = await supabase
+        .from("alerts")
+        .update(updates)
+        .eq("id", id)
+        .select()
+        .single();
       
-      const alertIndex = alertsStore.findIndex(a => a.id === id);
-      if (alertIndex === -1) {
-        throw new Error("Alert not found");
-      }
-      
-      const updatedAlert = {
-        ...alertsStore[alertIndex],
-        ...updates
-      };
-      
-      alertsStore[alertIndex] = updatedAlert;
-      return updatedAlert;
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["alerts"] });
@@ -89,24 +71,14 @@ export const useBulkUpdateAlerts = () => {
   
   return useMutation({
     mutationFn: async (updates: { ids: string[], data: Partial<Alert> }) => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const { data, error } = await supabase
+        .from("alerts")
+        .update(updates.data)
+        .in("id", updates.ids)
+        .select();
       
-      const updatedAlerts = [];
-      
-      for (const id of updates.ids) {
-        const alertIndex = alertsStore.findIndex(a => a.id === id);
-        if (alertIndex !== -1) {
-          const updatedAlert = {
-            ...alertsStore[alertIndex],
-            ...updates.data
-          };
-          alertsStore[alertIndex] = updatedAlert;
-          updatedAlerts.push(updatedAlert);
-        }
-      }
-      
-      return updatedAlerts;
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["alerts"] });

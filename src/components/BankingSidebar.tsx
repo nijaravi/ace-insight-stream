@@ -1,4 +1,4 @@
-import { Bell, Clock, TrendingUp, DollarSign, Shield, Building2, Zap, BarChart3, Plus, MoreVertical, Edit, Trash2, ShieldCheck, Settings } from "lucide-react";
+import { Bell, Clock, TrendingUp, DollarSign, Shield, Building2, Zap, BarChart3, Plus, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AddDepartmentModal } from "./AddDepartmentModal";
 import { EditDepartmentModal } from "./EditDepartmentModal";
@@ -6,18 +6,6 @@ import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Department } from "@/types/kpi";
 import adibLogo from "@/assets/adib-logo.png";
-
-// Icon mapping for department icons
-const iconMap = {
-  ShieldCheck,
-  Settings,
-  DollarSign,
-  Shield,
-  Building2,
-  Bell,
-  BarChart3,
-  TrendingUp
-} as const;
 
 interface BankingSidebarProps {
   selectedDepartment: string | null;
@@ -27,7 +15,6 @@ interface BankingSidebarProps {
   onViewSelect: (view: "kpi-management" | "alert-curation" | "alerts-dashboard") => void;
   onAddDepartment: (department: { name: string; description?: string; icon: string }) => void;
   onUpdateDepartment: (id: string, department: { name: string; description?: string; icon: string }) => void;
-  onDeleteDepartment: (id: string) => void;
 }
 
 export function BankingSidebar({ 
@@ -37,8 +24,7 @@ export function BankingSidebar({
   onDepartmentSelect, 
   onViewSelect, 
   onAddDepartment,
-  onUpdateDepartment,
-  onDeleteDepartment
+  onUpdateDepartment
 }: BankingSidebarProps) {
   const [addDepartmentModalOpen, setAddDepartmentModalOpen] = useState(false);
   const [editDepartmentModalOpen, setEditDepartmentModalOpen] = useState(false);
@@ -115,7 +101,7 @@ export function BankingSidebar({
                 <div
                   key={department.id}
                   className={cn(
-                    "relative w-full flex items-center justify-between gap-3 p-3 rounded-lg transition-all duration-200 group",
+                    "w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group",
                     "hover:bg-banking-sidebar-accent/10",
                     isSelected && "bg-banking-sidebar-accent text-white shadow-glow"
                   )}
@@ -125,25 +111,22 @@ export function BankingSidebar({
                       onDepartmentSelect(department.id);
                       onViewSelect("kpi-management");
                     }}
-                    className="flex items-center gap-3 flex-1 min-w-0"
+                    className="flex items-center gap-3 flex-1"
                   >
                     <div className={cn(
-                      "w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0",
+                      "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
                       isSelected ? "bg-white/20" : "bg-white/10"
                     )}>
-                      {(() => {
-                        const IconComponent = iconMap[department.icon as keyof typeof iconMap];
-                        return IconComponent ? <IconComponent className="w-4 h-4" /> : <Building2 className="w-4 h-4" />;
-                      })()}
+                      <span className="text-lg">{department.icon}</span>
                     </div>
-                    <span className="font-medium text-sm truncate">{department.name}</span>
+                    <span className="font-medium text-sm">{department.name}</span>
                   </button>
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
                         className={cn(
-                          "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md flex-shrink-0",
+                          "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md",
                           "hover:bg-white/10",
                           isSelected && "text-white hover:bg-white/20"
                         )}
@@ -151,21 +134,10 @@ export function BankingSidebar({
                         <MoreVertical className="w-4 h-4" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent 
-                      align="end" 
-                      className="w-48 bg-background border shadow-md z-50"
-                      sideOffset={5}
-                    >
+                    <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem onClick={() => handleEditDepartment(department)}>
                         <Edit className="w-4 h-4 mr-2" />
                         Edit Department
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => onDeleteDepartment(department.id)}
-                        className="text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete Department
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
