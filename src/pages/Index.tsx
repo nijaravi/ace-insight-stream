@@ -115,20 +115,20 @@ const Index = () => {
     
     // Default welcome view
     return (
-      <div className="flex-1 bg-banking-panel flex items-center justify-center min-h-screen">
+      <div className="flex-1 bg-banking-panel flex items-center justify-center h-screen overflow-hidden">
         <div className="text-center max-w-6xl mx-auto px-8">
           {/* Hero Section */}
-          <div className="mb-16">
-            <h2 className="text-6xl font-bold mb-6 text-foreground bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+          <div className="mb-12">
+            <h2 className="text-5xl font-bold mb-5 text-foreground bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
               Welcome to ACE Alerting Platform
             </h2>
-            <p className="text-2xl text-muted-foreground/80 leading-relaxed max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground/80 leading-relaxed max-w-3xl mx-auto">
               Your comprehensive solution for monitoring and managing organizational key performance indicators with intelligent alert systems.
             </p>
           </div>
           
           {/* Feature Cards */}
-          <div className="grid md:grid-cols-3 gap-8 mt-16">
+          <div className="grid md:grid-cols-3 gap-6 mt-12">
             <div className="group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative z-10">
@@ -176,7 +176,7 @@ const Index = () => {
           </div>
           
           {/* Call to Action */}
-          <div className="mt-16">
+          <div className="mt-12">
             <div className="inline-flex items-center gap-2 text-sm text-muted-foreground/60 bg-white/5 rounded-full px-6 py-3 border border-white/10">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               Select a section from the sidebar to get started
