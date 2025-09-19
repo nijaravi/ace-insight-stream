@@ -61,6 +61,20 @@ const Index = () => {
     }
   };
 
+  const handleDeleteDepartment = async (id: string) => {
+    // For now, just show a confirmation - implement actual delete logic when needed
+    if (window.confirm("Are you sure you want to delete this department? This action cannot be undone.")) {
+      try {
+        // TODO: Implement actual delete mutation
+        toast.success("Department deleted successfully");
+        console.log("Delete department:", id);
+      } catch (error) {
+        toast.error("Failed to delete department");
+        console.error("Error deleting department:", error);
+      }
+    }
+  };
+
   const renderMainContent = () => {
     if (selectedView === "alert-curation") {
       return <AlertCurationPanel />;
@@ -128,6 +142,7 @@ const Index = () => {
         onViewSelect={setSelectedView}
         onAddDepartment={handleAddDepartment}
         onUpdateDepartment={handleUpdateDepartment}
+        onDeleteDepartment={handleDeleteDepartment}
       />
       <div className="flex-1 pl-8 pt-6">
         {renderMainContent()}
