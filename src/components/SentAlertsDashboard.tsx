@@ -172,12 +172,12 @@ export function SentAlertsDashboard() {
             {/* Date Range */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-muted-foreground">Date Range</label>
-              <Popover key={`${dateRange.from.getTime()}-${dateRange.to.getTime()}`}>
+              <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateRange.from ? (
-                      dateRange.to ? (
+                      dateRange.to && dateRange.from.getTime() !== dateRange.to.getTime() ? (
                         <>
                           {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
                         </>
@@ -196,12 +196,11 @@ export function SentAlertsDashboard() {
                     defaultMonth={dateRange.from}
                     selected={{ from: dateRange.from, to: dateRange.to }}
                     onSelect={(range) => {
-                      if (range?.from) {
-                        if (range?.to) {
-                          setDateRange({ from: range.from, to: range.to });
-                        } else {
-                          setDateRange({ from: range.from, to: range.from });
-                        }
+                      if (range) {
+                        setDateRange({ 
+                          from: range.from || dateRange.from, 
+                          to: range.to || range.from || dateRange.to
+                        });
                       }
                     }}
                     numberOfMonths={2}
