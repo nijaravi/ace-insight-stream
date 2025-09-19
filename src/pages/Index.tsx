@@ -115,18 +115,37 @@ const Index = () => {
     
     // Default welcome view
     return (
-      <div className="flex-1 bg-banking-panel p-8 flex items-center justify-center min-h-screen">
-        <div className="text-center max-w-2xl mx-auto">
-          <div className="w-20 h-20 bg-gradient-accent rounded-2xl flex items-center justify-center mx-auto mb-8">
-            <Bell className="w-10 h-10 text-white" />
+      <div className="flex-1 bg-banking-panel flex items-center justify-center min-h-screen">
+        <div className="text-center max-w-4xl mx-auto px-8">
+          <h2 className="text-5xl font-bold mb-8 text-foreground">Welcome to ACE Alerting Platform</h2>
+          <div className="text-xl text-muted-foreground leading-relaxed space-y-6">
+            <p className="mb-6">
+              Your comprehensive solution for monitoring and managing organizational key performance indicators with intelligent alert systems.
+            </p>
+            
+            <div className="grid md:grid-cols-3 gap-8 mt-12">
+              <div className="space-y-3">
+                <h3 className="text-2xl font-semibold text-foreground">KPI Management</h3>
+                <p className="text-lg text-muted-foreground">
+                  Configure departments, define KPIs, and set performance thresholds to monitor your organization's key metrics effectively.
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <h3 className="text-2xl font-semibold text-foreground">Check Alerts & Send</h3>
+                <p className="text-lg text-muted-foreground">
+                  Manually curate and review alerts before sending, ensuring accurate and timely notifications to stakeholders.
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <h3 className="text-2xl font-semibold text-foreground">Alerts Dashboard</h3>
+                <p className="text-lg text-muted-foreground">
+                  Track and analyze historical alert data to identify trends and optimize your monitoring strategy.
+                </p>
+              </div>
+            </div>
           </div>
-          <h2 className="text-4xl font-bold mb-6 text-foreground">Welcome to ACE Alerting Platform</h2>
-          <p className="text-lg text-muted-foreground leading-relaxed">
-            Manage your organization's key performance indicators, monitor alerts, and track alert history. 
-            Choose from <strong>KPI Management</strong> to configure departments and KPIs, 
-            <strong>Check Alerts & Send</strong> for manual alert curation, or 
-            <strong>Alerts Dashboard</strong> to review sent alerts history.
-          </p>
         </div>
       </div>
     );
