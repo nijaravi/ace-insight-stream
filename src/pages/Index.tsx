@@ -119,11 +119,6 @@ const Index = () => {
         <div className="text-center max-w-6xl mx-auto px-8">
           {/* Hero Section */}
           <div className="mb-16">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-accent rounded-3xl mb-8 shadow-lg">
-              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
-                <div className="w-6 h-6 bg-white rounded-lg"></div>
-              </div>
-            </div>
             <h2 className="text-6xl font-bold mb-6 text-foreground bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
               Welcome to ACE Alerting Platform
             </h2>
