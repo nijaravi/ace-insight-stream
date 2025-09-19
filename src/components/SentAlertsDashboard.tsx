@@ -26,76 +26,82 @@ interface SentAlert {
   fullContent?: string;
 }
 
-const mockAlerts: SentAlert[] = [
-  {
-    id: "1",
-    date: "2025-09-16",
-    department: "Operations",
-    kpiName: "Branch Wait Time",
-    alertSummary: "Mall Branch breached SLA (28 mins avg)",
-    recipients: ["ops-head@adib.ae", "branch.manager@adib.ae"],
-    triggeredBy: "Manual",
-    comments: "Breached SLA during peak hours",
-    alertDate: new Date("2025-09-16T10:30:00"),
-    fullContent: "Critical Alert: Branch Wait Time Exceeded\n\nThe Mall Branch has exceeded the acceptable wait time SLA with an average of 28 minutes during peak hours (10:00-12:00). This represents a 180% increase from the standard 10-minute SLA.\n\nImmediate action required to address staffing levels and queue management."
-  },
-  {
-    id: "2", 
-    date: "2025-09-15",
-    department: "Risk & Compliance",
-    kpiName: "Fraud Detection",
-    alertSummary: "Unusual transaction patterns detected",
-    recipients: ["security@adib.ae", "risk@adib.ae"],
-    triggeredBy: "Automated",
-    comments: "",
-    alertDate: new Date("2025-09-15T14:22:00"),
-    fullContent: "Automated Fraud Alert\n\nOur AI systems have detected unusual transaction patterns in the Dubai Main Branch. Multiple high-value transactions from new accounts within a 2-hour window. Security team has been notified for immediate investigation."
-  },
-  {
-    id: "3",
-    date: "2025-09-14",
-    department: "Financial", 
-    kpiName: "Deposit Balances",
-    alertSummary: "Significant deposit withdrawals in Abu Dhabi region",
-    recipients: ["treasury@adib.ae", "finance@adib.ae"],
-    triggeredBy: "Manual",
-    comments: "Large corporate withdrawal",
-    alertDate: new Date("2025-09-14T09:15:00"),
-    fullContent: "Treasury Alert: Large Deposit Withdrawal\n\nA significant withdrawal of AED 50M has been processed from corporate account AC-789123. This represents 15% of the branch's total deposits. Treasury team should monitor liquidity levels and prepare for potential additional withdrawals."
-  },
-  {
-    id: "4",
-    date: "2025-09-13",
-    department: "Operations",
-    kpiName: "ATM Downtime", 
-    alertSummary: "Multiple ATM outages across Sharjah branches",
-    recipients: ["it-ops@adib.ae", "branch.ops@adib.ae"],
-    triggeredBy: "Automated",
-    comments: "Network connectivity issue",
-    alertDate: new Date("2025-09-13T16:45:00"),
-    fullContent: "Critical System Alert: ATM Network Failure\n\n5 ATMs in Sharjah region are currently offline due to network connectivity issues. Estimated downtime: 2-4 hours. Alternative cash withdrawal options have been communicated to affected branches."
-  },
-  {
-    id: "5",
-    date: "2025-09-12",
-    department: "Sales & Marketing",
-    kpiName: "Card Sales Drop",
-    alertSummary: "Credit card applications down 25% this week",
-    recipients: ["sales@adib.ae", "marketing@adib.ae"],
-    triggeredBy: "Manual", 
-    comments: "Market competition impact",
-    alertDate: new Date("2025-09-12T11:20:00"),
-    fullContent: "Sales Performance Alert\n\nCredit card applications have decreased by 25% compared to last week. Primary factors include increased market competition and promotional campaigns from competitors. Recommend immediate review of current offers and marketing strategy."
-  }
-];
+// Mock data for demonstration - dynamically generated
+const generateMockAlerts = (): SentAlert[] => {
+  const today = new Date();
+  return [
+    {
+      id: "1",
+      date: format(subDays(today, 1), "yyyy-MM-dd"),
+      department: "Operations",
+      kpiName: "Branch Wait Time",
+      alertSummary: "Mall Branch breached SLA (28 mins avg)",
+      recipients: ["ops-head@adib.ae", "branch.manager@adib.ae"],
+      triggeredBy: "Manual",
+      comments: "Breached SLA during peak hours",
+      alertDate: subDays(today, 1),
+      fullContent: "Critical Alert: Branch Wait Time Exceeded\n\nThe Mall Branch has exceeded the acceptable wait time SLA with an average of 28 minutes during peak hours (10:00-12:00). This represents a 180% increase from the standard 10-minute SLA.\n\nImmediate action required to address staffing levels and queue management."
+    },
+    {
+      id: "2", 
+      date: format(subDays(today, 2), "yyyy-MM-dd"),
+      department: "Risk & Compliance",
+      kpiName: "Fraud Detection",
+      alertSummary: "Unusual transaction patterns detected",
+      recipients: ["security@adib.ae", "risk@adib.ae"],
+      triggeredBy: "Automated",
+      comments: "",
+      alertDate: subDays(today, 2),
+      fullContent: "Automated Fraud Alert\n\nOur AI systems have detected unusual transaction patterns in the Dubai Main Branch. Multiple high-value transactions from new accounts within a 2-hour window. Security team has been notified for immediate investigation."
+    },
+    {
+      id: "3",
+      date: format(subDays(today, 3), "yyyy-MM-dd"),
+      department: "Financial", 
+      kpiName: "Deposit Balances",
+      alertSummary: "Significant deposit withdrawals in Abu Dhabi region",
+      recipients: ["treasury@adib.ae", "finance@adib.ae"],
+      triggeredBy: "Manual",
+      comments: "Large corporate withdrawal",
+      alertDate: subDays(today, 3),
+      fullContent: "Treasury Alert: Large Deposit Withdrawal\n\nA significant withdrawal of AED 50M has been processed from corporate account AC-789123. This represents 15% of the branch's total deposits. Treasury team should monitor liquidity levels and prepare for potential additional withdrawals."
+    },
+    {
+      id: "4",
+      date: format(subDays(today, 4), "yyyy-MM-dd"),
+      department: "Operations",
+      kpiName: "ATM Downtime", 
+      alertSummary: "Multiple ATM outages across Sharjah branches",
+      recipients: ["it-ops@adib.ae", "branch.ops@adib.ae"],
+      triggeredBy: "Automated",
+      comments: "Network connectivity issue",
+      alertDate: subDays(today, 4),
+      fullContent: "Critical System Alert: ATM Network Failure\n\n5 ATMs in Sharjah region are currently offline due to network connectivity issues. Estimated downtime: 2-4 hours. Alternative cash withdrawal options have been communicated to affected branches."
+    },
+    {
+      id: "5",
+      date: format(subDays(today, 5), "yyyy-MM-dd"),
+      department: "Sales & Marketing",
+      kpiName: "Card Sales Drop",
+      alertSummary: "Credit card applications down 25% this week",
+      recipients: ["sales@adib.ae", "marketing@adib.ae"],
+      triggeredBy: "Manual", 
+      comments: "Market competition impact",
+      alertDate: subDays(today, 5),
+      fullContent: "Sales Performance Alert\n\nCredit card applications have decreased by 25% compared to last week. Primary factors include increased market competition and promotional campaigns from competitors. Recommend immediate review of current offers and marketing strategy."
+    }
+  ];
+};
+
+const mockAlerts: SentAlert[] = generateMockAlerts();
 
 const departments = ["Operations", "Financial", "Risk & Compliance", "Sales & Marketing"];
 
 export function SentAlertsDashboard() {
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>(() => ({
     from: subDays(new Date(), 7),
     to: new Date()
-  });
+  }));
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedKpi, setSelectedKpi] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -166,7 +172,7 @@ export function SentAlertsDashboard() {
             {/* Date Range */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-muted-foreground">Date Range</label>
-              <Popover>
+              <Popover key={`${dateRange.from.getTime()}-${dateRange.to.getTime()}`}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
