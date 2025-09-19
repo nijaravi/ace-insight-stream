@@ -214,12 +214,12 @@ export function BankingSidebar({
 
       {/* Footer */}
       <div className="p-4 border-t border-banking-border/20">
-        <div className="flex items-center gap-3 bg-banking-sidebar-accent/10 rounded-lg px-3 py-2">
-          <span className="text-xs text-banking-sidebar-foreground/70">Powered by ACE</span>
+        <div className="flex items-center justify-between bg-banking-sidebar-accent/10 rounded-lg px-4 py-3">
+          <span className="text-sm font-medium text-banking-sidebar-foreground/90">Powered by ACE</span>
           <img 
             src={adibLogo} 
             alt="ADIB Bank Logo" 
-            className="h-4 w-auto opacity-80"
+            className="h-6 w-auto opacity-95"
           />
         </div>
       </div>
