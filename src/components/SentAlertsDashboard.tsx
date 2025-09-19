@@ -190,8 +190,12 @@ export function SentAlertsDashboard() {
                     defaultMonth={dateRange.from}
                     selected={{ from: dateRange.from, to: dateRange.to }}
                     onSelect={(range) => {
-                      if (range?.from && range?.to) {
-                        setDateRange({ from: range.from, to: range.to });
+                      if (range?.from) {
+                        if (range?.to) {
+                          setDateRange({ from: range.from, to: range.to });
+                        } else {
+                          setDateRange({ from: range.from, to: range.from });
+                        }
                       }
                     }}
                     numberOfMonths={2}
@@ -264,43 +268,45 @@ export function SentAlertsDashboard() {
           ) : (
             <>
               <div className="rounded-md border overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Department</TableHead>
-                      <TableHead>KPI Name</TableHead>
-                      <TableHead>Alert Detail</TableHead>
-                      <TableHead className="w-20">View</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedAlerts.map((alert) => (
-                      <TableRow key={alert.id} className="hover:bg-muted/50">
-                         <TableCell className="font-mono text-sm">
-                           {format(alert.alertDate, "MMM dd, HH:mm")}
-                         </TableCell>
-                         <TableCell>
-                           <Badge variant="outline">{alert.department}</Badge>
-                         </TableCell>
-                         <TableCell className="font-medium">{alert.kpiName}</TableCell>
-                         <TableCell className="max-w-md">
-                           {alert.alertSummary}
-                         </TableCell>
-                         <TableCell className="text-center">
-                           <Button
-                             variant="ghost"
-                             size="sm"
-                             onClick={() => handleViewAlert(alert)}
-                             className="h-8 w-8 p-0"
-                           >
-                             <Eye className="h-4 w-4" />
-                           </Button>
-                         </TableCell>
-                       </TableRow>
-                     ))}
-                  </TableBody>
-                </Table>
+                <div className="max-h-96 overflow-y-auto">
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-background z-10">
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Department</TableHead>
+                        <TableHead>KPI Name</TableHead>
+                        <TableHead>Alert Detail</TableHead>
+                        <TableHead className="w-20">View</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedAlerts.map((alert) => (
+                        <TableRow key={alert.id} className="hover:bg-muted/50">
+                           <TableCell className="font-mono text-sm">
+                             {format(alert.alertDate, "MMM dd, HH:mm")}
+                           </TableCell>
+                           <TableCell>
+                             <Badge variant="outline">{alert.department}</Badge>
+                           </TableCell>
+                           <TableCell className="font-medium">{alert.kpiName}</TableCell>
+                           <TableCell className="max-w-md">
+                             {alert.alertSummary}
+                           </TableCell>
+                           <TableCell className="text-center">
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={() => handleViewAlert(alert)}
+                               className="h-8 w-8 p-0"
+                             >
+                               <Eye className="h-4 w-4" />
+                             </Button>
+                           </TableCell>
+                         </TableRow>
+                       ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
 
               {totalPages > 1 && (
