@@ -133,7 +133,7 @@ export function SentAlertsDashboard() {
   };
 
   return (
-    <div className="p-8 space-y-8 bg-background min-h-screen">
+    <div className="p-8 space-y-8 bg-background">
       {/* Page Header */}
       <div className="space-y-3 pb-2">
         <h1 className="text-3xl font-bold flex items-center gap-2">
