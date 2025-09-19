@@ -12,7 +12,7 @@ interface BankingSidebarProps {
   selectedDepartment: string | null;
   selectedView: "kpi-management" | "alert-curation" | "alerts-dashboard";
   departments: Department[];
-  onDepartmentSelect: (departmentId: string) => void;
+  onDepartmentSelect: (departmentId: string | null) => void;
   onViewSelect: (view: "kpi-management" | "alert-curation" | "alerts-dashboard") => void;
   onAddDepartment: (department: { name: string; description?: string; icon: string }) => void;
   onUpdateDepartment: (id: string, department: { name: string; description?: string; icon: string }) => void;
@@ -68,7 +68,13 @@ export function BankingSidebar({
     <div className="w-80 bg-banking-sidebar text-banking-sidebar-foreground border-r border-banking-border flex flex-col">
       {/* Header */}
       <div className="p-6 border-b border-banking-border/20">
-        <div className="flex items-center gap-3 mb-2">
+        <button 
+          onClick={() => {
+            onDepartmentSelect(null);
+            onViewSelect("kpi-management");
+          }}
+          className="flex items-center gap-3 mb-2 w-full text-left hover:opacity-80 transition-opacity"
+        >
           <div className="w-10 h-10 bg-gradient-accent rounded-lg flex items-center justify-center">
             <Bell className="w-6 h-6 text-white" />
           </div>
@@ -76,7 +82,7 @@ export function BankingSidebar({
             <h1 className="text-xl font-bold">ACE Alerting Platform</h1>
             <p className="text-sm text-banking-sidebar-foreground/70">Analytics & Monitoring</p>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Navigation */}

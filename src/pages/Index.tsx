@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Bell } from "lucide-react";
 import { KpiManagementTable } from "@/components/KpiManagementTable";
 import { AlertCurationPanel } from "@/components/AlertCurationPanel"; 
 import { SentAlertsDashboard } from "@/components/SentAlertsDashboard";
@@ -114,10 +115,18 @@ const Index = () => {
     
     // Default welcome view
     return (
-      <div className="flex-1 bg-banking-panel p-8 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Welcome to ACE Alerting Platform</h2>
-          <p className="text-muted-foreground">Select a department to manage KPIs or choose Alert Curation to review alerts.</p>
+      <div className="flex-1 bg-banking-panel p-8 flex items-center justify-center min-h-screen">
+        <div className="text-center max-w-2xl mx-auto">
+          <div className="w-20 h-20 bg-gradient-accent rounded-2xl flex items-center justify-center mx-auto mb-8">
+            <Bell className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="text-4xl font-bold mb-6 text-foreground">Welcome to ACE Alerting Platform</h2>
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            Manage your organization's key performance indicators, monitor alerts, and track alert history. 
+            Choose from <strong>KPI Management</strong> to configure departments and KPIs, 
+            <strong>Check Alerts & Send</strong> for manual alert curation, or 
+            <strong>Alerts Dashboard</strong> to review sent alerts history.
+          </p>
         </div>
       </div>
     );
