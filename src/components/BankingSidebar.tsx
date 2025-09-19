@@ -2,6 +2,7 @@ import { Bell, Clock, TrendingUp, DollarSign, Shield, Building2, Zap, BarChart3,
 import { cn } from "@/lib/utils";
 import { AddDepartmentModal } from "./AddDepartmentModal";
 import { EditDepartmentModal } from "./EditDepartmentModal";
+import { DeleteDepartmentDialog } from "./DeleteDepartmentDialog";
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Department } from "@/types/kpi";
@@ -30,7 +31,9 @@ export function BankingSidebar({
 }: BankingSidebarProps) {
   const [addDepartmentModalOpen, setAddDepartmentModalOpen] = useState(false);
   const [editDepartmentModalOpen, setEditDepartmentModalOpen] = useState(false);
+  const [deleteDepartmentDialogOpen, setDeleteDepartmentDialogOpen] = useState(false);
   const [departmentToEdit, setDepartmentToEdit] = useState<Department | null>(null);
+  const [departmentToDelete, setDepartmentToDelete] = useState<Department | null>(null);
 
   const handleAddDepartment = (departmentData: { name: string; description?: string; icon: string }) => {
     onAddDepartment(departmentData);
@@ -46,6 +49,19 @@ export function BankingSidebar({
     onUpdateDepartment(id, departmentData);
     setEditDepartmentModalOpen(false);
     setDepartmentToEdit(null);
+  };
+
+  const handleDeleteDepartment = (department: Department) => {
+    setDepartmentToDelete(department);
+    setDeleteDepartmentDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (departmentToDelete) {
+      onDeleteDepartment(departmentToDelete.id);
+      setDeleteDepartmentDialogOpen(false);
+      setDepartmentToDelete(null);
+    }
   };
 
   return (
@@ -142,7 +158,7 @@ export function BankingSidebar({
                         Edit Department
                       </DropdownMenuItem>
                       <DropdownMenuItem 
-                        onClick={() => onDeleteDepartment(department.id)}
+                        onClick={() => handleDeleteDepartment(department)}
                         className="text-destructive focus:text-destructive"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
@@ -219,6 +235,13 @@ export function BankingSidebar({
         onOpenChange={setEditDepartmentModalOpen}
         department={departmentToEdit}
         onUpdateDepartment={handleUpdateDepartment}
+      />
+      
+      <DeleteDepartmentDialog
+        open={deleteDepartmentDialogOpen}
+        onOpenChange={setDeleteDepartmentDialogOpen}
+        department={departmentToDelete}
+        onConfirmDelete={handleConfirmDelete}
       />
     </div>
   );

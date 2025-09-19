@@ -57,3 +57,22 @@ export const useUpdateDepartment = () => {
     },
   });
 };
+
+export const useDeleteDepartment = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("departments")
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+      return { id };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
+    },
+  });
+};

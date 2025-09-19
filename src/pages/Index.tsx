@@ -3,7 +3,7 @@ import { KpiManagementTable } from "@/components/KpiManagementTable";
 import { AlertCurationPanel } from "@/components/AlertCurationPanel"; 
 import { SentAlertsDashboard } from "@/components/SentAlertsDashboard";
 import { BankingSidebar } from "@/components/BankingSidebar";
-import { useDepartments, useAddDepartment, useUpdateDepartment } from "@/hooks/useDepartments";
+import { useDepartments, useAddDepartment, useUpdateDepartment, useDeleteDepartment } from "@/hooks/useDepartments";
 import { useKpis, useAddKpi, useUpdateKpi } from "@/hooks/useKpis";
 import { toast } from "sonner";
 import type { KpiData } from "@/types/kpi";
@@ -18,6 +18,7 @@ const Index = () => {
   const { data: kpis, isLoading: kpisLoading } = useKpis(selectedDepartment || undefined);
   const addDepartmentMutation = useAddDepartment();
   const updateDepartmentMutation = useUpdateDepartment();
+  const deleteDepartmentMutation = useDeleteDepartment();
   const addKpiMutation = useAddKpi(); 
   const updateKpiMutation = useUpdateKpi();
 
@@ -62,16 +63,17 @@ const Index = () => {
   };
 
   const handleDeleteDepartment = async (id: string) => {
-    // For now, just show a confirmation - implement actual delete logic when needed
-    if (window.confirm("Are you sure you want to delete this department? This action cannot be undone.")) {
-      try {
-        // TODO: Implement actual delete mutation
-        toast.success("Department deleted successfully");
-        console.log("Delete department:", id);
-      } catch (error) {
-        toast.error("Failed to delete department");
-        console.error("Error deleting department:", error);
+    try {
+      await deleteDepartmentMutation.mutateAsync(id);
+      toast.success("Department deleted successfully");
+      
+      // Clear selection if the deleted department was selected
+      if (selectedDepartment === id) {
+        setSelectedDepartment(null);
       }
+    } catch (error) {
+      toast.error("Failed to delete department");
+      console.error("Error deleting department:", error);
     }
   };
 
