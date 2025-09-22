@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
-import { X, Plus, ChevronDown } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 
 interface AddKpiModalProps {
@@ -83,15 +81,10 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, departmentId, departmen
     default_subject: "",
     default_body: "",
     default_footer: "",
-    is_favorite: false,
-    // Advanced fields
-    identifier: "",
-    severity_tagging: true,
   });
 
   const [emailToInput, setEmailToInput] = useState("");
   const [emailCCInput, setEmailCCInput] = useState("");
-  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -122,9 +115,6 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, departmentId, departmen
       return; // Basic validation
     }
 
-    // Generate identifier if not provided
-    const identifier = formData.identifier || formData.name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-    
     const newKpi = {
       name: formData.name.trim(),
       domain: departmentName, // Use department name as domain
@@ -135,9 +125,6 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, departmentId, departmen
       default_subject: formData.default_subject.trim(),
       default_body: formData.default_body.trim(),
       default_footer: formData.default_footer.trim(),
-      is_favorite: formData.is_favorite,
-      identifier: identifier,
-      severity_tagging: formData.severity_tagging,
       owner_department_id: departmentId, // Link to the department
       is_active: true
     };
@@ -155,9 +142,6 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, departmentId, departmen
       default_subject: "",
       default_body: "",
       default_footer: "",
-      is_favorite: false,
-      identifier: "",
-      severity_tagging: true,
     });
   };
 
@@ -272,53 +256,6 @@ export function AddKpiModal({ isOpen, onClose, onAddKpi, departmentId, departmen
             </div>
           </div>
 
-          {/* Favorite Toggle */}
-          <div className="flex items-center justify-between p-3 rounded-lg border">
-            <div className="space-y-1">
-              <Label htmlFor="favorite-toggle" className="text-sm font-medium">Mark as Favorite</Label>
-              <p className="text-xs text-muted-foreground">Star this KPI for quick access</p>
-            </div>
-            <Switch
-              id="favorite-toggle"
-              checked={formData.is_favorite}
-              onCheckedChange={(checked) => handleInputChange("is_favorite", checked)}
-            />
-          </div>
-
-          {/* Advanced Section */}
-          <Collapsible open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
-            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Advanced Options</span>
-                <Badge variant="outline" className="text-xs">Optional</Badge>
-              </div>
-              <ChevronDown className={`w-4 h-4 transition-transform ${isAdvancedOpen ? 'rotate-180' : ''}`} />
-            </CollapsibleTrigger>
-            
-            <CollapsibleContent className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="kpi-identifier" className="text-sm font-medium">KPI Identifier (Code)</Label>
-                <Input
-                  id="kpi-identifier"
-                  value={formData.identifier}
-                  onChange={(e) => handleInputChange("identifier", e.target.value)}
-                  placeholder="e.g. branch_wait_time (auto-generated if empty)"
-                />
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-lg border">
-                <div className="space-y-1">
-                  <Label htmlFor="severity-toggle" className="text-sm font-medium">Severity Tagging</Label>
-                  <p className="text-xs text-muted-foreground">Show severity column in alert table</p>
-                </div>
-                <Switch
-                  id="severity-toggle"
-                  checked={formData.severity_tagging}
-                  onCheckedChange={(checked) => handleInputChange("severity_tagging", checked)}
-                />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button type="button" variant="outline" onClick={onClose}>
