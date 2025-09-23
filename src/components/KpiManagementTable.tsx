@@ -25,6 +25,7 @@ import { AISummarizerModal } from "./AISummarizerModal";
 import { EmailSettingsModal } from "./EmailSettingsModal";
 import { SentAlertsViewerModal } from "./SentAlertsViewerModal";
 import { AddKpiModal } from "./AddKpiModal";
+import { EditKpiNameModal } from "./EditKpiNameModal";
 
 import type { KpiTableData } from "@/types/kpi";
 
@@ -52,6 +53,7 @@ export function KpiManagementTable({
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [alertsViewerOpen, setAlertsViewerOpen] = useState(false);
   const [addKpiModalOpen, setAddKpiModalOpen] = useState(false);
+  const [editKpiNameModalOpen, setEditKpiNameModalOpen] = useState(false);
   const [selectedKpi, setSelectedKpi] = useState<KpiTableData | null>(null);
 
   // Filter and sort KPIs
@@ -87,6 +89,11 @@ export function KpiManagementTable({
   const handleAlertsViewerOpen = (kpi: KpiTableData) => {
     setSelectedKpi(kpi);
     setAlertsViewerOpen(true);
+  };
+
+  const handleEditKpiNameOpen = (kpi: KpiTableData) => {
+    setSelectedKpi(kpi);
+    setEditKpiNameModalOpen(true);
   };
 
   const handleActiveToggle = (kpiId: string, isActive: boolean) => {
@@ -178,7 +185,7 @@ export function KpiManagementTable({
                           variant="ghost"
                           size="sm"
                           className="h-6 w-6 p-0"
-                          onClick={() => {/* Edit KPI name */}}
+                          onClick={() => handleEditKpiNameOpen(kpi)}
                         >
                           <Edit className="w-3 h-3" />
                         </Button>
@@ -280,6 +287,16 @@ export function KpiManagementTable({
             open={alertsViewerOpen}
             onOpenChange={setAlertsViewerOpen}
             kpi={selectedKpi}
+          />
+
+          <EditKpiNameModal
+            open={editKpiNameModalOpen}
+            onOpenChange={setEditKpiNameModalOpen}
+            kpi={selectedKpi}
+            onSave={(updates) => {
+              onKpiUpdate(selectedKpi.id, updates);
+              setEditKpiNameModalOpen(false);
+            }}
           />
         </>
       )}
